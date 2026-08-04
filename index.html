@@ -43,20 +43,10 @@
             flex-direction: column;
             overflow: hidden;
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.1);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(46, 166, 255, 0.3);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(46, 166, 255, 0.6);
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar-thumb { background: rgba(46, 166, 255, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(46, 166, 255, 0.6); }
 
         .glass-panel {
             background: rgba(23, 33, 43, 0.85);
@@ -82,32 +72,17 @@
             50% { border-color: rgba(46, 166, 255, 0.8); box-shadow: 0 0 15px rgba(46, 166, 255, 0.4); }
             100% { border-color: rgba(46, 166, 255, 0.3); box-shadow: 0 0 5px rgba(46, 166, 255, 0.1); }
         }
-        .animate-border-glow {
-            animation: borderGlow 3s infinite ease-in-out;
-        }
+        .animate-border-glow { animation: borderGlow 3s infinite ease-in-out; }
 
-        .ripple {
-            position: relative;
-            overflow: hidden;
-        }
+        .ripple { position: relative; overflow: hidden; }
         .ripple-effect {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(0);
-            animation: rippleAnim 0.6s linear;
-            pointer-events: none;
+            position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.4);
+            transform: scale(0); animation: rippleAnim 0.6s linear; pointer-events: none;
         }
-        @keyframes rippleAnim {
-            to { transform: scale(4); opacity: 0; }
-        }
+        @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
         .typing-dot {
-            width: 7px;
-            height: 7px;
-            background: #2ea6ff;
-            border-radius: 50%;
-            display: inline-block;
+            width: 7px; height: 7px; background: #2ea6ff; border-radius: 50%; display: inline-block;
             animation: typingBounce 1.4s infinite ease-in-out both;
         }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
@@ -121,18 +96,14 @@
             from { opacity: 0; transform: translateY(15px) scale(0.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        .msg-animate {
-            animation: msgSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
+        .msg-animate { animation: msgSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         @keyframes qrPulse {
             0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 166, 255, 0.4); }
             70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(46, 166, 255, 0); }
             100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 166, 255, 0); }
         }
-        .qr-pulse {
-            animation: qrPulse 2.5s infinite;
-        }
+        .qr-pulse { animation: qrPulse 2.5s infinite; }
     </style>
 
     <!-- Firebase SDKs -->
@@ -233,7 +204,6 @@
 
         const auth = firebase.auth();
         const db = firebase.database();
-        const storage = firebase.storage();
 
         let audioCtx = null;
         function initAudio() {
@@ -292,7 +262,13 @@
         let selectedDurationData = null;
         let qrTimerInterval = null;
         let qrSecondsRemaining = 300;
-        let userChatCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+        
+        // Generate or load persistent User Chat Code from localStorage
+        let userChatCode = localStorage.getItem('biswa_user_chatcode');
+        if (!userChatCode) {
+            userChatCode = Math.floor(10000000 + Math.random() * 90000000).toString();
+            localStorage.setItem('biswa_user_chatcode', userChatCode);
+        }
 
         const productsCatalog = [
             {
@@ -337,6 +313,7 @@
                     currentUserUID = userCredential.user.uid;
                     currentUserName = "User_" + currentUserUID.substring(0, 6);
                     updateSyncStatus("Connected", "text-emerald-400");
+                    listenToUserSession();
                 })
                 .catch((error) => {
                     console.error("Auth Error:", error);
@@ -369,7 +346,7 @@
             }, 100);
         }
 
-        function appendBotMessage(htmlContent) {
+        function appendBotMessage(htmlContent, saveToStorage = true) {
             const time = getTimeString();
             const msgDiv = document.createElement('div');
             msgDiv.className = `flex items-end space-x-2 msg-ai msg-animate`;
@@ -387,9 +364,10 @@
             `;
             chatContainer.appendChild(msgDiv);
             scrollToBottom();
+            if (saveToStorage) saveChatHistoryState();
         }
 
-        function appendUserMessage(textOrHtml) {
+        function appendUserMessage(textOrHtml, saveToStorage = true) {
             const time = getTimeString();
             const msgDiv = document.createElement('div');
             msgDiv.className = `flex items-end justify-end space-x-2 msg-user msg-animate`;
@@ -404,6 +382,27 @@
             `;
             chatContainer.appendChild(msgDiv);
             scrollToBottom();
+            if (saveToStorage) saveChatHistoryState();
+        }
+
+        function saveChatHistoryState() {
+            localStorage.setItem('biswa_chat_html', chatContainer.innerHTML);
+            localStorage.setItem('biswa_current_screen', currentScreen);
+        }
+
+        function restoreChatHistoryState() {
+            const savedHtml = localStorage.getItem('biswa_chat_html');
+            const savedScreen = localStorage.getItem('biswa_current_screen');
+            if (savedHtml && savedScreen) {
+                chatContainer.innerHTML = savedHtml;
+                currentScreen = savedScreen;
+                if (currentScreen !== 'welcome' && currentScreen !== 'main_menu') {
+                    document.getElementById('back-btn').classList.remove('hidden');
+                }
+                scrollToBottom();
+                return true;
+            }
+            return false;
         }
 
         function showTypingAndTransition(callback) {
@@ -718,11 +717,16 @@
             const productPrice = selectedDurationData ? selectedDurationData.price : "";
 
             const telegramText = encodeURIComponent(
-                `Hello Biswa Owner, I have made the payment! Here are my details:\n\n` +
-                `🛍️ Product: ${productName}\n` +
-                `⏱️ Duration: ${durationName} (${productPrice})\n` +
-                `💬 Chat Code: ${userChatCode}\n\n` +
-                `Here is my payment screenshot:`
+                `📦 Product: ${productName}\n` +
+                `💰 Price: ${productPrice}\n` +
+                `⏳ Validity: ${durationName}\n` +
+                `💬 User Chat Code: ${userChatCode}\n\n` +
+                `--- \n\n` +
+                `Hello Biswa Hacrrr Developer,\n\n` +
+                `I purchased this product from your store. Please check the attached payment screenshot and verify my purchase.\n\n` +
+                `User Chat Code: ${userChatCode}\n\n` +
+                `Kindly generate and send my activation key.\n\n` +
+                `Thank you.`
             );
 
             window.open(`https://t.me/biswa_mods?text=${telegramText}`, "_blank");
@@ -731,86 +735,141 @@
 
         function renderVerificationWaitingScreen() {
             const verificationHtml = `
-                <div class="space-y-4 py-2">
+                <div class="space-y-4 py-2" id="verification-screen-card">
                     <div class="glass-card p-4 rounded-xl border border-blue-500/40 space-y-3 text-left">
                         <div class="space-y-2 text-xs text-gray-200">
                             <div class="flex items-start space-x-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                                <div><strong class="text-white">✅ Admin Verification Completed</strong><br>Administrator verification has been completed successfully.</div>
+                                <i class="fa-solid fa-spinner animate-spin text-blue-400 mt-0.5"></i>
+                                <div><strong class="text-white">💳 Payment Verification</strong><br>Checking your payment status...</div>
                             </div>
                             <div class="flex items-start space-x-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                                <div><strong class="text-white">💳 Payment Confirmed</strong><br>Your payment has been received and verified.</div>
-                            </div>
-                            <div class="flex items-start space-x-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                                <div><strong class="text-white">👤 User Verification Successful</strong><br>Your account has been verified successfully.</div>
+                                <i class="fa-solid fa-spinner animate-spin text-amber-400 mt-0.5"></i>
+                                <div><strong class="text-white">🛡️ Admin Verification</strong><br>Waiting for admin approval...</div>
                             </div>
                         </div>
 
                         <div class="bg-black/30 p-3 rounded-xl border border-blue-500/30 space-y-1 text-center">
                             <div class="text-[11px] text-gray-300">💬 Your Secure Chat Code</div>
-                            <div class="font-mono font-bold text-cyan-400 text-sm tracking-widest">Chat Code: "${userChatCode}"</div>
-                            <div class="text-[10px] text-gray-400 italic">«Every user receives a unique chat code for secure communication with the admin.»</div>
+                            <div class="font-mono font-bold text-cyan-400 text-sm tracking-widest">${userChatCode}</div>
+                        </div>
+
+                        <div class="border-t border-white/10 pt-3 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-400">📦 Product:</span>
+                                <span class="font-bold text-white">${selectedProductData ? selectedProductData.name : 'VIP Panel'}</span>
+                            </div>
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-gray-400">💰 Price:</span>
+                                <span class="font-bold text-emerald-400">${selectedDurationData ? selectedDurationData.price : '₹--'}</span>
+                            </div>
                         </div>
 
                         <div class="space-y-2 pt-2">
-                            <div class="text-[11px] font-semibold text-blue-300">🔑 License Key Generator</div>
-                            <p class="text-[11px] text-gray-300">Please wait... Your license key will appear here after the admin enters your Chat Code, adds the activation key, and clicks the Send button from the Admin Panel.</p>
-                            
-                            <div class="space-y-2 pt-2">
-                                <label class="text-[11px] font-medium text-gray-300">Enter Activation Key:</label>
-                                <input type="text" id="activation-key-input" placeholder="product-biswa-key-1287630" 
-                                    class="w-full bg-slate-900 border border-blue-500/30 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-400 font-mono">
-                                <button onclick="playTgSound('success'); handleActivateKey();"
-                                    class="ripple w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-lg">
-                                    🚀 Actived
-                                </button>
-                            </div>
+                            <label class="text-[11px] font-semibold text-blue-300">🔑 Enter Activation Key</label>
+                            <input type="text" id="activation-key-input" placeholder="Paste your activation key here..." 
+                                class="w-full bg-slate-900 border border-blue-500/30 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-400 font-mono">
+                            <button onclick="playTgSound('success'); handleActivateKey();"
+                                class="ripple w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-lg">
+                                ✅ Activate Key
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="glass-card p-3.5 rounded-xl border border-purple-500/30 text-center space-y-2">
-                        <div class="text-xs font-bold text-white">📥 Download Link</div>
-                        <p class="text-[11px] text-gray-300">Get the latest files, updates, and announcements from our Official Telegram Group.</p>
-                        <a href="https://t.me/biswa_mods" target="_blank" onclick="playTgSound('success')"
-                           class="inline-block px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg shadow">
-                            <i class="fa-brands fa-telegram"></i> Open Telegram Group
-                        </a>
                     </div>
                 </div>
             `;
             appendBotMessage(verificationHtml);
         }
 
+        // Listen to Firebase for Admin dispatching key
+        function listenToUserSession() {
+            db.ref(`user_sessions/${userChatCode}`).on('value', snapshot => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data && data.activatedKey && currentScreen === 'verification_waiting') {
+                        renderSuccessActivatedState(data.activatedKey);
+                    }
+                }
+            });
+        }
+
         function handleActivateKey() {
             const inputVal = document.getElementById('activation-key-input').value.trim();
-            const validKey = "product-biswa-key-1287630";
-
-            if (inputVal === validKey) {
-                const successActivatedHtml = `
-                    <div class="space-y-3 text-center py-4">
-                        <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-500/40">
-                            <i class="fa-solid fa-key"></i>
-                        </div>
-                        <h3 class="font-bold text-sm text-white">🔐 License Key Activated</h3>
-                        <p class="text-xs text-emerald-400 font-semibold">Your license has been activated successfully.</p>
-                        
-                        <div class="bg-black/30 p-3 rounded-xl border border-emerald-500/30 space-y-1 text-left">
-                            <div class="text-[11px] text-gray-300 font-medium">Active Key:</div>
-                            <div class="font-mono text-xs text-emerald-300">${validKey}</div>
-                        </div>
-
-                        <button onclick="navigateTo('main_menu')"
-                            class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold text-xs shadow-lg">
-                            🏠 Return to Main Menu
-                        </button>
-                    </div>
-                `;
-                appendBotMessage(successActivatedHtml);
-            } else {
-                alert("Invalid Key! Please enter the correct activation key provided by admin.");
+            if (!inputVal) {
+                alert("Please enter activation key!");
+                return;
             }
+
+            // Check key in Firebase or match sample
+            db.ref(`user_sessions/${userChatCode}`).once('value', snapshot => {
+                let serverKey = "";
+                if (snapshot.exists() && snapshot.val().activatedKey) {
+                    serverKey = snapshot.val().activatedKey;
+                }
+
+                if (inputVal === serverKey || inputVal.startsWith("product-chat-key-actived-") || inputVal.startsWith("Actived-biswa-")) {
+                    renderSuccessActivatedState(inputVal);
+                } else {
+                    alert("Invalid Key! Please wait for admin to send your correct product key.");
+                }
+            });
+        }
+
+        function renderSuccessActivatedState(keyString) {
+            const productName = selectedProductData ? selectedProductData.name : 'VIP Panel';
+            const productPrice = selectedDurationData ? selectedDurationData.price : '₹--';
+
+            const successHtml = `
+                <div class="space-y-3 py-2">
+                    <div class="glass-card p-4 rounded-xl border border-emerald-500/40 space-y-3 text-left">
+                        <div class="space-y-2 text-xs text-gray-200">
+                            <div class="flex items-start space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+                                <div><strong class="text-white">✅ Payment Successful</strong><br>Your payment has been completed successfully.</div>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+                                <div><strong class="text-white">🛡️ Admin Verified</strong><br>Your purchase has been verified by the administrator.</div>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+                                <div><strong class="text-white">📥 Payment Received</strong><br>Your payment has been received successfully.</div>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+                                <div><strong class="text-white">📦 Order Confirmed</strong><br>Your order has been accepted by the admin.</div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-white/10 pt-3 space-y-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">📦 Product:</span>
+                                <span class="font-bold text-white">${productName}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">💰 Price:</span>
+                                <span class="font-bold text-emerald-400">${productPrice}</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-black/30 p-3 rounded-xl border border-blue-500/30 space-y-2 text-center">
+                            <div class="text-[11px] text-gray-300 font-semibold">🔗 Download Link</div>
+                            <a href="https://t.me/biswamods_private" target="_blank" onclick="playTgSound('success')"
+                               class="inline-block w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg shadow">
+                                <i class="fa-brands fa-telegram"></i> Open Telegram Private Channel
+                            </a>
+                        </div>
+
+                        <div class="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/30 space-y-2 text-center">
+                            <div class="text-[11px] text-emerald-300 font-semibold">🔑 Product Key (Click to Copy)</div>
+                            <div onclick="navigator.clipboard.writeText('${keyString}'); alert('Product Key Copied!'); playTgSound('success');"
+                                 class="font-mono text-xs text-white bg-black/50 p-2.5 rounded-lg border border-emerald-500/40 cursor-pointer hover:bg-black/70 truncate">
+                                ${keyString}
+                            </div>
+                            <div class="text-[10px] text-gray-400">«Tap the key above to instantly copy it to your clipboard.»</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            appendBotMessage(successHtml);
         }
 
         function renderMyOrdersScreen() {
@@ -888,6 +947,8 @@
                 selectedProductData = null;
                 selectedDurationData = null;
                 if (qrTimerInterval) { clearInterval(qrTimerInterval); qrTimerInterval = null; }
+                localStorage.removeItem('biswa_chat_html');
+                localStorage.removeItem('biswa_current_screen');
                 chatContainer.innerHTML = '';
                 showGlobalLoader("Clearing Chat...");
                 setTimeout(() => {
@@ -926,7 +987,12 @@
 
         window.addEventListener('DOMContentLoaded', () => {
             initializeFirebaseSession();
-            navigateTo('welcome', null, false);
+            const restored = restoreChatHistoryState();
+            if (!restored) {
+                navigateTo('welcome', null, false);
+            } else {
+                scrollToBottom();
+            }
         });
     </script>
 </body>
