@@ -332,18 +332,15 @@
         ];
 
         function initializeFirebaseSession() {
-            showGlobalLoader("Syncing Firebase...");
             auth.signInAnonymously()
                 .then((userCredential) => {
                     currentUserUID = userCredential.user.uid;
                     currentUserName = "User_" + currentUserUID.substring(0, 6);
                     updateSyncStatus("Connected", "text-emerald-400");
-                    hideGlobalLoader();
                 })
                 .catch((error) => {
                     console.error("Auth Error:", error);
                     updateSyncStatus("Offline Mode", "text-amber-400");
-                    hideGlobalLoader();
                     currentUserUID = "guest_" + Math.random().toString(36).substring(2, 8);
                 });
         }
@@ -417,24 +414,20 @@
             setTimeout(() => {
                 typingEl.classList.add('hidden');
                 callback();
-            }, 500);
-        }
-
-        function clearChatDOMCompletely() {
-            chatContainer.innerHTML = '';
+            }, 300);
         }
 
         function navigateTo(screenName, userActionText = null, pushHistory = true) {
             playTgSound('screen');
             initAudio();
 
-            if (pushHistory && currentScreen && currentScreen !== 'welcome') {
+            if (pushHistory && currentScreen && currentScreen !== 'welcome' && currentScreen !== screenName) {
                 navigationHistory.push(currentScreen);
             }
             currentScreen = screenName;
 
             const backBtn = document.getElementById('back-btn');
-            if (screenName === 'welcome') {
+            if (screenName === 'welcome' || screenName === 'main_menu') {
                 backBtn.classList.add('hidden');
                 navigationHistory = [];
             } else {
@@ -455,7 +448,7 @@
                 const prevScreen = navigationHistory.pop();
                 navigateTo(prevScreen, "⬅️ Back", false);
             } else {
-                navigateTo('welcome', "🏠 Main Menu", false);
+                navigateTo('main_menu', "🏠 Main Menu", false);
             }
         }
 
@@ -476,12 +469,11 @@
                 case 'my_orders': renderMyOrdersScreen(); break;
                 case 'contact_owner': renderContactOwnerScreen(); break;
                 case 'share_store': renderShareStoreScreen(); break;
-                default: renderWelcomeScreen();
+                default: renderMainMenuScreen();
             }
         }
 
         function renderWelcomeScreen() {
-            clearChatDOMCompletely();
             const welcomeHtml = `
                 <div class="text-center space-y-3">
                     <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-xl shadow-blue-500/30 animate-border-glow border border-blue-400/30">
@@ -720,12 +712,24 @@
                 clearInterval(qrTimerInterval);
                 qrTimerInterval = null;
             }
-            window.open("https://t.me/biswa_mods", "_blank");
+
+            const productName = selectedProductData ? selectedProductData.name : "Unknown Product";
+            const durationName = selectedDurationData ? selectedDurationData.name : "Unknown Duration";
+            const productPrice = selectedDurationData ? selectedDurationData.price : "";
+
+            const telegramText = encodeURIComponent(
+                `Hello Biswa Owner, I have made the payment! Here are my details:\n\n` +
+                `🛍️ Product: ${productName}\n` +
+                `⏱️ Duration: ${durationName} (${productPrice})\n` +
+                `💬 Chat Code: ${userChatCode}\n\n` +
+                `Here is my payment screenshot:`
+            );
+
+            window.open(`https://t.me/biswa_mods?text=${telegramText}`, "_blank");
             navigateTo('verification_waiting', "📸 Payment Screenshot Sent on Telegram");
         }
 
         function renderVerificationWaitingScreen() {
-            clearChatDOMCompletely();
             const verificationHtml = `
                 <div class="space-y-4 py-2">
                     <div class="glass-card p-4 rounded-xl border border-blue-500/40 space-y-3 text-left">
@@ -784,7 +788,6 @@
             const validKey = "product-biswa-key-1287630";
 
             if (inputVal === validKey) {
-                clearChatDOMCompletely();
                 const successActivatedHtml = `
                     <div class="space-y-3 text-center py-4">
                         <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-500/40">
@@ -811,7 +814,6 @@
         }
 
         function renderMyOrdersScreen() {
-            clearChatDOMCompletely();
             const noOrdersHtml = `
                 <div class="text-center space-y-3 py-6">
                     <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-blue-500/20">
@@ -886,12 +888,12 @@
                 selectedProductData = null;
                 selectedDurationData = null;
                 if (qrTimerInterval) { clearInterval(qrTimerInterval); qrTimerInterval = null; }
-                clearChatDOMCompletely();
+                chatContainer.innerHTML = '';
                 showGlobalLoader("Clearing Chat...");
                 setTimeout(() => {
                     hideGlobalLoader();
                     playTgSound('success');
-                    navigateTo('main_menu', null, false);
+                    navigateTo('welcome', null, false);
                 }, 400);
             }
         }
