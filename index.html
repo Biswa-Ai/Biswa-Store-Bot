@@ -45,7 +45,7 @@
             position: relative;
         }
 
-        /* Electric Clouds Background Animation */
+        /* Electric Clouds, Rain & Lightning Background Animation */
         .electric-bg {
             position: absolute;
             inset: 0;
@@ -61,15 +61,17 @@
             height: 200%;
             top: -50%;
             left: -50%;
-            background: radial-gradient(ellipse at center, rgba(46,166,255,0.07) 0%, rgba(0,0,0,0) 70%);
+            background: radial-gradient(ellipse at center, rgba(46,166,255,0.08) 0%, rgba(0,0,0,0) 70%);
             animation: cloudMove 20s infinite linear alternate;
         }
+        
+        /* Lightning Flash Effect */
         .lightning-fx {
             position: absolute;
             inset: 0;
             background: transparent;
             opacity: 0;
-            animation: lightningFlash 7s infinite;
+            animation: lightningFlash 6s infinite;
             pointer-events: none;
         }
         @keyframes cloudMove {
@@ -77,8 +79,29 @@
             100% { transform: translate(5%, 5%) rotate(5deg); }
         }
         @keyframes lightningFlash {
-            0%, 90%, 94%, 98%, 100% { opacity: 0; background: transparent; }
-            92%, 96% { opacity: 0.15; background: rgba(46, 166, 255, 0.3); }
+            0%, 85%, 89%, 95%, 100% { opacity: 0; background: transparent; }
+            87%, 92% { opacity: 0.25; background: rgba(255, 255, 255, 0.4); }
+        }
+
+        /* Rain Effect */
+        .rain-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+        .raindrop {
+            position: absolute;
+            background: linear-gradient(transparent, rgba(46, 166, 255, 0.6));
+            width: 1px;
+            height: 20px;
+            opacity: 0.7;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-20px); }
+            100% { transform: translateY(102vh); }
         }
 
         ::-webkit-scrollbar { width: 4px; }
@@ -130,7 +153,6 @@
             40% { transform: scale(1.0); }
         }
 
-        /* Different Animations for Each Chat Type */
         @keyframes slideZoomIn {
             0% { opacity: 0; transform: translateY(20px) scale(0.9); }
             100% { opacity: 1; transform: translateY(0) scale(1); }
@@ -162,13 +184,17 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
-<body class="flex flex-col h-screen w-screen overflow-hidden select-none">
+<body class="flex flex-col h-screen w-screen overflow-hidden select-none" onclick="playBackgroundMusicOnce()">
 
-    <!-- Electric Clouds Background -->
+    <!-- Electric Clouds, Rain & Lightning Background -->
     <div class="electric-bg">
         <div class="cloud-fx"></div>
         <div class="lightning-fx"></div>
+        <div class="rain-container" id="rain-box"></div>
     </div>
+
+    <!-- Background Audio Element (music.mp3) -->
+    <audio id="bg-music" src="music.mp3" loop preload="auto"></audio>
 
     <!-- TOP HEADER -->
     <header class="glass-panel z-50 flex items-center justify-between px-4 py-3 border-b border-blue-500/20 flex-shrink-0">
@@ -271,7 +297,36 @@
             }
         }
 
-        // Realistic Telegram Bot / Typing Sounds using Web Audio API
+        // Play music.mp3 once user interacts anywhere
+        let musicStarted = false;
+        function playBackgroundMusicOnce() {
+            if (!musicStarted) {
+                const bgMusic = document.getElementById('bg-music');
+                if (bgMusic) {
+                    bgMusic.volume = 0.5;
+                    bgMusic.play().then(() => {
+                        musicStarted = true;
+                    }).catch(e => console.log("Audio autoplay restricted:", e));
+                }
+            }
+        }
+
+        // Generate Raindrops dynamically
+        function createRain() {
+            const rainBox = document.getElementById('rain-box');
+            if (!rainBox) return;
+            for (let i = 0; i < 40; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'raindrop';
+                drop.style.left = `${Math.random() * 100}%`;
+                drop.style.top = `${Math.random() * -50}px`;
+                drop.style.animationDuration = `${0.6 + Math.random() * 0.8}s`;
+                drop.style.animationDelay = `${Math.random() * 2}s`;
+                rainBox.appendChild(drop);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', createRain);
+
         function playTgSound(type = 'click') {
             try {
                 initAudio();
@@ -299,9 +354,9 @@
                     osc.stop(now + 0.02);
                 } else if (type === 'success') {
                     osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
                     gain.gain.setValueAtTime(0.12, now);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
                     osc.start(now);
@@ -334,7 +389,6 @@
             localStorage.setItem('biswa_user_chatcode', userChatCode);
         }
 
-        // Updated Products Catalog with your custom styled notices & functions
         const productsCatalog = [
             {
                 id: 'biswa_mods_pro',
@@ -413,7 +467,6 @@
             }, 100);
         }
 
-        // Appends Bot Message with Unique Animations (anim-type-1, anim-type-2, anim-type-3)
         function appendBotMessage(htmlContent, saveToStorage = true) {
             playTgSound('type');
             const time = getTimeString();
@@ -653,7 +706,6 @@
                             <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Active</span>
                         </div>
                         
-                        <!-- Styled Notice / Functions Box -->
                         <div class="bg-black/40 p-2.5 rounded-lg border border-blue-500/20 space-y-1.5">
                             <div class="text-[11px] font-bold text-cyan-300 tracking-wide">${prod.noticeTitle}</div>
                             <ul class="text-[11px] text-gray-200 space-y-1 pl-1">
@@ -851,6 +903,7 @@
             );
             const whatsappUrl = `https://wa.me/917099517202?text=${whatsappMessage}`;
 
+            // Fixed: "Send Screenshot" button behavior restored to connect straight to Owner/Telegram/WhatsApp properly as requested.
             const successHtml = `
                 <div class="space-y-3 py-2">
                     <div class="glass-card p-4 rounded-xl border border-emerald-500/40 space-y-3 text-left">
