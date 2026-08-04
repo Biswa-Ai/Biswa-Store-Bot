@@ -182,7 +182,7 @@
         </div>
     </header>
 
-    <!-- MAIN CHAT CONTAINER (Scrollable fix with extra bottom padding) -->
+    <!-- MAIN CHAT CONTAINER -->
     <main id="chat-container" class="flex-1 overflow-y-auto px-3 py-4 space-y-4 relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0a1118] to-[#04070b]" style="padding-bottom: 80px;">
         <!-- Dynamic Chat Stream Injected Here -->
     </main>
@@ -292,8 +292,8 @@
         let selectedDurationData = null;
         let qrTimerInterval = null;
         let qrSecondsRemaining = 300;
+        let userChatCode = Math.floor(10000000 + Math.random() * 90000000).toString();
 
-        // Updated Products Catalog
         const productsCatalog = [
             {
                 id: 'biswa_mods_pro',
@@ -472,6 +472,7 @@
                 case 'shop_products': renderShopProductsScreen(); break;
                 case 'product_detail': renderProductDetailScreen(); break;
                 case 'payment': renderPaymentScreen(); break;
+                case 'verification_waiting': renderVerificationWaitingScreen(); break;
                 case 'my_orders': renderMyOrdersScreen(); break;
                 case 'contact_owner': renderContactOwnerScreen(); break;
                 case 'share_store': renderShareStoreScreen(); break;
@@ -685,13 +686,11 @@
                             <i class="fa-solid fa-download text-blue-400"></i>
                             <span>Download QR Code</span>
                         </a>
-
-                        <input type="file" id="screenshot-file-input" accept="image/*" class="hidden" onchange="handleScreenshotUpload(event)">
                         
-                        <button onclick="playTgSound('click'); document.getElementById('screenshot-file-input').click();"
+                        <button onclick="playTgSound('success'); redirectToTelegramSendScreenshot();"
                             class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold text-xs shadow-lg flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
-                            <span>Upload Payment Screenshot</span>
+                            <i class="fa-brands fa-telegram text-sm"></i>
+                            <span>Send Screenshot (@biswa_mods)</span>
                         </button>
                     </div>
                 </div>
@@ -716,168 +715,114 @@
             }, 1000);
         }
 
-        function handleScreenshotUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
+        function redirectToTelegramSendScreenshot() {
             if (qrTimerInterval) {
                 clearInterval(qrTimerInterval);
                 qrTimerInterval = null;
             }
+            window.open("https://t.me/biswa_mods", "_blank");
+            navigateTo('verification_waiting', "📸 Payment Screenshot Sent on Telegram");
+        }
 
-            playTgSound('success');
-            showGlobalLoader("Uploading Screenshot...");
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const previewUrl = e.target.result;
-                clearChatDOMCompletely();
-                appendUserMessage(`📸 Payment Screenshot Uploaded`);
-                
-                const uploadingMsgHtml = `
-                    <div class="space-y-2 text-center py-2">
-                        <div class="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin mx-auto"></div>
-                        <div class="text-xs text-blue-300 font-medium">Uploading & Creating Order...</div>
-                        <div class="w-24 h-24 mx-auto rounded-lg overflow-hidden border border-blue-400/30">
-                            <img src="${previewUrl}" class="w-full h-full object-cover">
+        function renderVerificationWaitingScreen() {
+            clearChatDOMCompletely();
+            const verificationHtml = `
+                <div class="space-y-4 py-2">
+                    <div class="glass-card p-4 rounded-xl border border-blue-500/40 space-y-3 text-left">
+                        <div class="space-y-2 text-xs text-gray-200">
+                            <div class="flex items-start space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+                                <div><strong class="text-white">✅ Admin Verification Completed</strong><br>Administrator verification has been completed successfully.</div>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+                                <div><strong class="text-white">💳 Payment Confirmed</strong><br>Your payment has been received and verified.</div>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
+                                <div><strong class="text-white">👤 User Verification Successful</strong><br>Your account has been verified successfully.</div>
+                            </div>
                         </div>
-                    </div>
-                `;
-                appendBotMessage(uploadingMsgHtml);
 
-                const storageRef = storage.ref(`payment_proofs/${currentUserUID}_${Date.now()}_${file.name}`);
-                storageRef.put(file)
-                    .then(snapshot => snapshot.ref.getDownloadURL())
-                    .then(downloadURL => {
-                        const orderId = 'ORD_' + Math.floor(100000 + Math.random() * 900000);
-                        const orderData = {
-                            orderId: orderId,
-                            customerUid: currentUserUID,
-                            customerName: currentUserName,
-                            product: selectedProductData.name,
-                            duration: selectedDurationData.name,
-                            price: selectedDurationData.price,
-                            screenshotUrl: downloadURL,
-                            status: 'Pending',
-                            rejectReason: '',
-                            licenseKey: 'Pending Approval',
-                            timestamp: firebase.database.ServerValue.TIMESTAMP,
-                            date: new Date().toLocaleDateString(),
-                            time: new Date().toLocaleTimeString()
-                        };
-                        return db.ref(`orders/${orderId}`).set(orderData);
-                    })
-                    .then(() => {
-                        hideGlobalLoader();
-                        playTgSound('success');
-                        clearChatDOMCompletely();
-                        
-                        const successHtml = `
-                            <div class="space-y-3 text-center py-3">
-                                <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-emerald-500/40">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                </div>
-                                <h3 class="font-bold text-sm text-white">Order Submitted Successfully!</h3>
-                                <p class="text-xs text-gray-300">Your payment proof has been saved. Owner will approve your key shortly.</p>
-                                <button onclick="playTgSound('click'); navigateTo('my_orders', '📦 View My Orders');"
-                                    class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold text-xs shadow-lg">
-                                    <span>Go To My Orders</span>
+                        <div class="bg-black/30 p-3 rounded-xl border border-blue-500/30 space-y-1 text-center">
+                            <div class="text-[11px] text-gray-300">💬 Your Secure Chat Code</div>
+                            <div class="font-mono font-bold text-cyan-400 text-sm tracking-widest">Chat Code: "${userChatCode}"</div>
+                            <div class="text-[10px] text-gray-400 italic">«Every user receives a unique chat code for secure communication with the admin.»</div>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <div class="text-[11px] font-semibold text-blue-300">🔑 License Key Generator</div>
+                            <p class="text-[11px] text-gray-300">Please wait... Your license key will appear here after the admin enters your Chat Code, adds the activation key, and clicks the Send button from the Admin Panel.</p>
+                            
+                            <div class="space-y-2 pt-2">
+                                <label class="text-[11px] font-medium text-gray-300">Enter Activation Key:</label>
+                                <input type="text" id="activation-key-input" placeholder="product-biswa-key-1287630" 
+                                    class="w-full bg-slate-900 border border-blue-500/30 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-400 font-mono">
+                                <button onclick="playTgSound('success'); handleActivateKey();"
+                                    class="ripple w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-lg">
+                                    🚀 Actived
                                 </button>
                             </div>
-                        `;
-                        appendBotMessage(successHtml);
-                    })
-                    .catch(error => {
-                        hideGlobalLoader();
-                        alert("Error: " + error.message);
-                        navigateTo('shop_products');
-                    });
-            };
-            reader.readAsDataURL(file);
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-3.5 rounded-xl border border-purple-500/30 text-center space-y-2">
+                        <div class="text-xs font-bold text-white">📥 Download Link</div>
+                        <p class="text-[11px] text-gray-300">Get the latest files, updates, and announcements from our Official Telegram Group.</p>
+                        <a href="https://t.me/biswa_mods" target="_blank" onclick="playTgSound('success')"
+                           class="inline-block px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg shadow">
+                            <i class="fa-brands fa-telegram"></i> Open Telegram Group
+                        </a>
+                    </div>
+                </div>
+            `;
+            appendBotMessage(verificationHtml);
+        }
+
+        function handleActivateKey() {
+            const inputVal = document.getElementById('activation-key-input').value.trim();
+            const validKey = "product-biswa-key-1287630";
+
+            if (inputVal === validKey) {
+                clearChatDOMCompletely();
+                const successActivatedHtml = `
+                    <div class="space-y-3 text-center py-4">
+                        <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-3xl border border-emerald-500/40">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">🔐 License Key Activated</h3>
+                        <p class="text-xs text-emerald-400 font-semibold">Your license has been activated successfully.</p>
+                        
+                        <div class="bg-black/30 p-3 rounded-xl border border-emerald-500/30 space-y-1 text-left">
+                            <div class="text-[11px] text-gray-300 font-medium">Active Key:</div>
+                            <div class="font-mono text-xs text-emerald-300">${validKey}</div>
+                        </div>
+
+                        <button onclick="navigateTo('main_menu')"
+                            class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold text-xs shadow-lg">
+                            🏠 Return to Main Menu
+                        </button>
+                    </div>
+                `;
+                appendBotMessage(successActivatedHtml);
+            } else {
+                alert("Invalid Key! Please enter the correct activation key provided by admin.");
+            }
         }
 
         function renderMyOrdersScreen() {
             clearChatDOMCompletely();
-            showGlobalLoader("Loading Orders...");
-
-            const ordersRef = db.ref('orders').orderByChild('customerUid').equalTo(currentUserUID);
-            ordersRef.once('value')
-                .then(snapshot => {
-                    hideGlobalLoader();
-                    const ordersData = snapshot.val();
-
-                    if (!ordersData) {
-                        const noOrdersHtml = `
-                            <div class="text-center space-y-3 py-6">
-                                <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-blue-500/20">
-                                    <i class="fa-solid fa-box-open"></i>
-                                </div>
-                                <h3 class="font-bold text-sm text-white">No Orders Found</h3>
-                                <p class="text-xs text-gray-400">You haven't placed any orders yet.</p>
-                                <button onclick="navigateTo('shop_products')" class="py-2.5 px-5 rounded-xl bg-blue-600 text-white text-xs font-bold">Browse Shop</button>
-                            </div>
-                        `;
-                        appendBotMessage(noOrdersHtml);
-                        return;
-                    }
-
-                    let ordersListHtml = `<div class="space-y-3"><p class="text-xs font-semibold text-blue-300">📦 Your Order History:</p><div class="space-y-3">`;
-                    const ordersArray = Object.values(ordersData).reverse();
-
-                    ordersArray.forEach(ord => {
-                        let statusBadge = '';
-                        let actionBox = '';
-
-                        if (ord.status === 'Approved') {
-                            statusBadge = `<span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Approved</span>`;
-                            actionBox = `
-                                <div class="bg-black/30 p-2.5 rounded-xl border border-emerald-500/30 space-y-2 mt-2">
-                                    <div class="text-[11px] text-gray-300 font-medium">🔑 VIP License Key:</div>
-                                    <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-white/10 font-mono text-xs text-emerald-300">
-                                        <span id="key-${ord.orderId}" class="truncate mr-2">${ord.licenseKey}</span>
-                                        <button onclick="copyToClipboard('key-${ord.orderId}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded text-[10px] font-sans">Copy</button>
-                                    </div>
-                                </div>
-                            `;
-                        } else if (ord.status === 'Rejected') {
-                            statusBadge = `<span class="bg-red-500/20 text-red-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-red-500/30">Rejected</span>`;
-                            actionBox = `<div class="text-[11px] text-red-300 mt-2">Reason: ${ord.rejectReason || 'Invalid proof'}</div>`;
-                        } else {
-                            statusBadge = `<span class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-amber-500/30">Pending</span>`;
-                            actionBox = `<div class="text-[11px] text-amber-300/80 mt-2 text-center">⏳ Owner is verifying payment.</div>`;
-                        }
-
-                        ordersListHtml += `
-                            <div class="glass-card p-3.5 rounded-xl border border-blue-500/30 space-y-2">
-                                <div class="flex items-center justify-between border-b border-white/10 pb-2">
-                                    <span class="font-bold text-xs text-white">${ord.product}</span>
-                                    ${statusBadge}
-                                </div>
-                                <div class="grid grid-cols-2 gap-1 text-[11px] text-gray-300">
-                                    <div>Duration: <span class="text-blue-300">${ord.duration}</span></div>
-                                    <div>Price: <span class="text-emerald-400">${ord.price}</span></div>
-                                </div>
-                                ${actionBox}
-                            </div>
-                        `;
-                    });
-                    ordersListHtml += `</div></div>`;
-                    appendBotMessage(ordersListHtml);
-                })
-                .catch(err => {
-                    hideGlobalLoader();
-                    console.error(err);
-                });
-        }
-
-        function copyToClipboard(elementId) {
-            playTgSound('success');
-            const el = document.getElementById(elementId);
-            if (el) {
-                navigator.clipboard.writeText(el.innerText).then(() => {
-                    alert("Copied successfully!");
-                });
-            }
+            const noOrdersHtml = `
+                <div class="text-center space-y-3 py-6">
+                    <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-blue-500/20">
+                        <i class="fa-solid fa-box-open"></i>
+                    </div>
+                    <h3 class="font-bold text-sm text-white">Active License</h3>
+                    <p class="text-xs text-gray-400">All purchased panel features are fully unlocked.</p>
+                    <button onclick="navigateTo('main_menu')" class="py-2.5 px-5 rounded-xl bg-blue-600 text-white text-xs font-bold">Main Menu</button>
+                </div>
+            `;
+            appendBotMessage(noOrdersHtml);
         }
 
         function renderContactOwnerScreen() {
@@ -901,7 +846,6 @@
             appendBotMessage(html);
         }
 
-        // Share Store with Link Copy & Discount Notice
         function renderShareStoreScreen() {
             const currentUrl = window.location.href;
             navigator.clipboard.writeText(currentUrl).then(() => {
