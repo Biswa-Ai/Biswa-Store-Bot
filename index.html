@@ -110,7 +110,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 </head>
 <body class="flex flex-col h-screen w-screen overflow-hidden select-none">
 
@@ -141,7 +140,7 @@
                     <span>•</span>
                     <span id="firebase-sync-status" class="text-blue-300 flex items-center space-x-1">
                         <i class="fa-solid fa-cloud text-[9px]"></i>
-                        <span>Syncing...</span>
+                        <span>Connected</span>
                     </span>
                 </div>
             </div>
@@ -255,7 +254,6 @@
         }
 
         let currentUserUID = null;
-        let currentUserName = "Telegram User";
         let currentScreen = 'welcome';
         let navigationHistory = [];
         let selectedProductData = null;
@@ -263,7 +261,6 @@
         let qrTimerInterval = null;
         let qrSecondsRemaining = 300;
         
-        // Generate or load persistent User Chat Code from localStorage
         let userChatCode = localStorage.getItem('biswa_user_chatcode');
         if (!userChatCode) {
             userChatCode = Math.floor(10000000 + Math.random() * 90000000).toString();
@@ -308,26 +305,11 @@
         ];
 
         function initializeFirebaseSession() {
-            auth.signInAnonymously()
-                .then((userCredential) => {
-                    currentUserUID = userCredential.user.uid;
-                    currentUserName = "User_" + currentUserUID.substring(0, 6);
-                    updateSyncStatus("Connected", "text-emerald-400");
-                    listenToUserSession();
-                })
-                .catch((error) => {
-                    console.error("Auth Error:", error);
-                    updateSyncStatus("Offline Mode", "text-amber-400");
-                    currentUserUID = "guest_" + Math.random().toString(36).substring(2, 8);
-                });
-        }
-
-        function updateSyncStatus(text, colorClass) {
-            const el = document.getElementById('firebase-sync-status');
-            if (el) {
-                el.innerHTML = `<i class="fa-solid fa-cloud text-[9px]"></i><span>${text}</span>`;
-                el.className = `flex items-center space-x-1 ${colorClass}`;
-            }
+            auth.signInAnonymously().then((userCredential) => {
+                currentUserUID = userCredential.user.uid;
+            }).catch((error) => {
+                console.error("Auth Error:", error);
+            });
         }
 
         const chatContainer = document.getElementById('chat-container');
@@ -645,7 +627,7 @@
             qrSecondsRemaining = 300;
             
             const html = `
-                <div class="space-y-3" id="payment-session-wrapper">
+                <div class="space-y-3">
                     <div class="glass-card p-4 rounded-xl border border-blue-500/40 text-center space-y-3">
                         <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
                             <span class="text-gray-400">Product:</span>
@@ -678,10 +660,10 @@
                             <span>Download QR Code</span>
                         </a>
                         
-                        <button onclick="playTgSound('success'); redirectToTelegramSendScreenshot();"
+                        <button onclick="playTgSound('success'); navigateTo('verification_waiting', '📸 Send Screenshot');"
                             class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold text-xs shadow-lg flex items-center justify-center space-x-2">
-                            <i class="fa-brands fa-telegram text-sm"></i>
-                            <span>Send Screenshot (@biswa_mods)</span>
+                            <i class="fa-solid fa-paper-plane text-sm"></i>
+                            <span>Send Screenshot</span>
                         </button>
                     </div>
                 </div>
@@ -706,71 +688,24 @@
             }, 1000);
         }
 
-        function redirectToTelegramSendScreenshot() {
-            if (qrTimerInterval) {
-                clearInterval(qrTimerInterval);
-                qrTimerInterval = null;
-            }
-
-            const productName = selectedProductData ? selectedProductData.name : "Unknown Product";
-            const durationName = selectedDurationData ? selectedDurationData.name : "Unknown Duration";
-            const productPrice = selectedDurationData ? selectedDurationData.price : "";
-
-            const telegramText = encodeURIComponent(
-                `📦 Product: ${productName}\n` +
-                `💰 Price: ${productPrice}\n` +
-                `⏳ Validity: ${durationName}\n` +
-                `💬 User Chat Code: ${userChatCode}\n\n` +
-                `--- \n\n` +
-                `Hello Biswa Hacrrr Developer,\n\n` +
-                `I purchased this product from your store. Please check the attached payment screenshot and verify my purchase.\n\n` +
-                `User Chat Code: ${userChatCode}\n\n` +
-                `Kindly generate and send my activation key.\n\n` +
-                `Thank you.`
-            );
-
-            window.open(`https://t.me/biswa_mods?text=${telegramText}`, "_blank");
-            navigateTo('verification_waiting', "📸 Payment Screenshot Sent on Telegram");
-        }
-
         function renderVerificationWaitingScreen() {
             const verificationHtml = `
-                <div class="space-y-4 py-2" id="verification-screen-card">
+                <div class="space-y-4 py-2" id="verification-card-box">
                     <div class="glass-card p-4 rounded-xl border border-blue-500/40 space-y-3 text-left">
                         <div class="space-y-2 text-xs text-gray-200">
                             <div class="flex items-start space-x-2">
                                 <i class="fa-solid fa-spinner animate-spin text-blue-400 mt-0.5"></i>
-                                <div><strong class="text-white">💳 Payment Verification</strong><br>Checking your payment status...</div>
-                            </div>
-                            <div class="flex items-start space-x-2">
-                                <i class="fa-solid fa-spinner animate-spin text-amber-400 mt-0.5"></i>
-                                <div><strong class="text-white">🛡️ Admin Verification</strong><br>Waiting for admin approval...</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-black/30 p-3 rounded-xl border border-blue-500/30 space-y-1 text-center">
-                            <div class="text-[11px] text-gray-300">💬 Your Secure Chat Code</div>
-                            <div class="font-mono font-bold text-cyan-400 text-sm tracking-widest">${userChatCode}</div>
-                        </div>
-
-                        <div class="border-t border-white/10 pt-3 space-y-2">
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-400">📦 Product:</span>
-                                <span class="font-bold text-white">${selectedProductData ? selectedProductData.name : 'VIP Panel'}</span>
-                            </div>
-                            <div class="flex items-center justify-between text-xs">
-                                <span class="text-gray-400">💰 Price:</span>
-                                <span class="font-bold text-emerald-400">${selectedDurationData ? selectedDurationData.price : '₹--'}</span>
+                                <div><strong class="text-white">Please Wait</strong><br>Verification in progress...</div>
                             </div>
                         </div>
 
                         <div class="space-y-2 pt-2">
                             <label class="text-[11px] font-semibold text-blue-300">🔑 Enter Activation Key</label>
-                            <input type="text" id="activation-key-input" placeholder="Paste your activation key here..." 
+                            <input type="text" id="activation-key-input" placeholder="biswa-1134447278883838" value="biswa-1134447278883838"
                                 class="w-full bg-slate-900 border border-blue-500/30 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-blue-400 font-mono">
                             <button onclick="playTgSound('success'); handleActivateKey();"
                                 class="ripple w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-lg">
-                                ✅ Activate Key
+                                Actived
                             </button>
                         </div>
                     </div>
@@ -779,43 +714,38 @@
             appendBotMessage(verificationHtml);
         }
 
-        // Listen to Firebase for Admin dispatching key
-        function listenToUserSession() {
-            db.ref(`user_sessions/${userChatCode}`).on('value', snapshot => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    if (data && data.activatedKey && currentScreen === 'verification_waiting') {
-                        renderSuccessActivatedState(data.activatedKey);
-                    }
-                }
-            });
-        }
-
         function handleActivateKey() {
             const inputVal = document.getElementById('activation-key-input').value.trim();
-            if (!inputVal) {
-                alert("Please enter activation key!");
+            const permanentKey = "biswa-1134447278883838";
+
+            if (inputVal !== permanentKey) {
+                alert("Invalid Key! Please use the correct permanent key: biswa-1134447278883838");
                 return;
             }
 
-            // Check key in Firebase or match sample
-            db.ref(`user_sessions/${userChatCode}`).once('value', snapshot => {
-                let serverKey = "";
-                if (snapshot.exists() && snapshot.val().activatedKey) {
-                    serverKey = snapshot.val().activatedKey;
-                }
+            // Remove verification card/chat box visually
+            const verificationBox = document.getElementById('verification-card-box');
+            if (verificationBox) {
+                verificationBox.closest('.msg-ai').remove();
+            }
 
-                if (inputVal === serverKey || inputVal.startsWith("product-chat-key-actived-") || inputVal.startsWith("Actived-biswa-")) {
-                    renderSuccessActivatedState(inputVal);
-                } else {
-                    alert("Invalid Key! Please wait for admin to send your correct product key.");
-                }
-            });
+            // Append new success chat card
+            renderSuccessState(inputVal);
         }
 
-        function renderSuccessActivatedState(keyString) {
-            const productName = selectedProductData ? selectedProductData.name : 'VIP Panel';
-            const productPrice = selectedDurationData ? selectedDurationData.price : '₹--';
+        function renderSuccessState(keyString) {
+            const productName = selectedProductData ? selectedProductData.name : 'BISWA MODS PRO';
+            const productPrice = selectedDurationData ? selectedDurationData.price : '₹60';
+            const productValidity = selectedDurationData ? selectedDurationData.name : '1 Hour Pass';
+
+            const whatsappMessage = encodeURIComponent(
+                `Hello BISWA MODS,\n\n` +
+                `My payment has been verified.\n\n` +
+                `Chat Code: ${userChatCode}\n` +
+                `Product: ${productName}\n\n` +
+                `Please send my Product Key.`
+            );
+            const whatsappUrl = `https://wa.me/917099517202?text=${whatsappMessage}`;
 
             const successHtml = `
                 <div class="space-y-3 py-2">
@@ -823,48 +753,39 @@
                         <div class="space-y-2 text-xs text-gray-200">
                             <div class="flex items-start space-x-2">
                                 <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                                <div><strong class="text-white">✅ Payment Successful</strong><br>Your payment has been completed successfully.</div>
+                                <div><strong class="text-white">Payment Received</strong></div>
                             </div>
                             <div class="flex items-start space-x-2">
                                 <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                                <div><strong class="text-white">🛡️ Admin Verified</strong><br>Your purchase has been verified by the administrator.</div>
-                            </div>
-                            <div class="flex items-start space-x-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                                <div><strong class="text-white">📥 Payment Received</strong><br>Your payment has been received successfully.</div>
-                            </div>
-                            <div class="flex items-start space-x-2">
-                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5"></i>
-                                <div><strong class="text-white">📦 Order Confirmed</strong><br>Your order has been accepted by the admin.</div>
+                                <div><strong class="text-white">Payment Done</strong></div>
                             </div>
                         </div>
 
                         <div class="border-t border-white/10 pt-3 space-y-2 text-xs">
                             <div class="flex items-center justify-between">
-                                <span class="text-gray-400">📦 Product:</span>
+                                <span class="text-gray-400">product:</span>
                                 <span class="font-bold text-white">${productName}</span>
                             </div>
                             <div class="flex items-center justify-between">
-                                <span class="text-gray-400">💰 Price:</span>
+                                <span class="text-gray-400">praice:</span>
                                 <span class="font-bold text-emerald-400">${productPrice}</span>
                             </div>
-                        </div>
-
-                        <div class="bg-black/30 p-3 rounded-xl border border-blue-500/30 space-y-2 text-center">
-                            <div class="text-[11px] text-gray-300 font-semibold">🔗 Download Link</div>
-                            <a href="https://t.me/biswamods_private" target="_blank" onclick="playTgSound('success')"
-                               class="inline-block w-full py-2.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg shadow">
-                                <i class="fa-brands fa-telegram"></i> Open Telegram Private Channel
-                            </a>
-                        </div>
-
-                        <div class="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/30 space-y-2 text-center">
-                            <div class="text-[11px] text-emerald-300 font-semibold">🔑 Product Key (Click to Copy)</div>
-                            <div onclick="navigator.clipboard.writeText('${keyString}'); alert('Product Key Copied!'); playTgSound('success');"
-                                 class="font-mono text-xs text-white bg-black/50 p-2.5 rounded-lg border border-emerald-500/40 cursor-pointer hover:bg-black/70 truncate">
-                                ${keyString}
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-400">product:</span>
+                                <span class="font-bold text-blue-300">${productValidity}</span>
                             </div>
-                            <div class="text-[10px] text-gray-400">«Tap the key above to instantly copy it to your clipboard.»</div>
+                        </div>
+
+                        <div class="space-y-2 pt-2">
+                            <a href="https://t.me/biswamods_private" target="_blank" onclick="playTgSound('success')"
+                               class="ripple inline-block w-full py-3 px-4 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl text-center shadow">
+                                <i class="fa-brands fa-telegram"></i> download link
+                            </a>
+
+                            <a href="${whatsappUrl}" target="_blank" onclick="playTgSound('success')"
+                               class="ripple inline-block w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl text-center shadow">
+                                <i class="fa-brands fa-whatsapp"></i> get key
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -887,7 +808,7 @@
         }
 
         function renderContactOwnerScreen() {
-            const ownerWhatsApp = "919876543210";
+            const ownerWhatsApp = "7099517202";
             const html = `
                 <div class="space-y-3 text-center">
                     <div class="glass-card p-5 rounded-xl border border-blue-500/40 space-y-3">
@@ -896,7 +817,7 @@
                         </div>
                         <h3 class="font-bold text-sm text-white">BISWA MODS OWNER</h3>
                         <p class="text-xs text-gray-300">Chat directly with the store owner on WhatsApp.</p>
-                        <a href="https://wa.me/${ownerWhatsApp}?text=Hi%20Biswa%20Mod%20Owner" target="_blank" onclick="playTgSound('success')"
+                        <a href="https://wa.me/91${ownerWhatsApp}?text=Hi%20BISWA%20MODS" target="_blank" onclick="playTgSound('success')"
                            class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold text-xs shadow-lg flex items-center justify-center space-x-2">
                             <i class="fa-brands fa-whatsapp text-base"></i>
                             <span>Open WhatsApp Chat</span>
