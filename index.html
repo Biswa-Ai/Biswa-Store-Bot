@@ -2,173 +2,238 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BISWA MODS PRO - Automated Store</title>
-    <!-- Tailwind CSS for styling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BISWA MODS PRO</title>
+    <!-- Tailwind CSS CDN for fast responsive layout styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        telegram: {
-                            bg: '#0e1621',
-                            panel: '#17212b',
-                            bubbleOut: '#2b5278',
-                            bubbleIn: '#182533',
-                            accent: '#2481cc',
-                            accentHover: '#1c6cae',
-                            text: '#f5f5f5',
-                            textSecondary: '#8593a7',
-                            border: '#232e3c'
-                        }
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.3s ease-in-out forwards',
-                        'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'pulse-glow': 'pulseGlow 2s infinite',
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' },
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' },
-                        },
-                        pulseGlow: {
-                            '0%, 100%': { boxShadow: '0 0 15px rgba(36, 129, 204, 0.4)' },
-                            '50%': { boxShadow: '0 0 25px rgba(36, 129, 204, 0.8)' },
-                        }
+                        tgdark: '#0e1621',
+                        tgpanel: '#17212b',
+                        tgmsg: '#2b5278',
+                        tgout: '#182533',
+                        tghover: '#202b38',
+                        accent: '#2ea6ff',
+                        accenthover: '#1a90ee'
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome for Icons -->
+    <!-- FontAwesome for Telegram / Cyber Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* Custom scrollbar and glassmorphism helpers */
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            background-color: #080c12;
+            color: #f5f5f5;
+            overflow: hidden;
+            height: 100vh;
+            height: 100dvh;
+        }
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         ::-webkit-scrollbar-track {
-            background: #0e1621;
+            background: rgba(0,0,0,0.1);
         }
         ::-webkit-scrollbar-thumb {
-            background: #232e3c;
-            border-radius: 3px;
+            background: rgba(46, 166, 255, 0.3);
+            border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #2481cc;
+            background: rgba(46, 166, 255, 0.6);
         }
+
+        /* Glassmorphism & Cyber Glow Effects */
         .glass-panel {
             background: rgba(23, 33, 43, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(46, 166, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
-        .telegram-bubble-in {
-            background-color: #182533;
-            border-radius: 18px 18px 18px 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        .glass-card {
+            background: rgba(18, 26, 36, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(46, 166, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(46, 166, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .telegram-bubble-out {
-            background-color: #2b5278;
-            border-radius: 18px 18px 4px 18px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        .glass-card:hover {
+            border-color: rgba(46, 166, 255, 0.6);
+            box-shadow: 0 6px 25px rgba(46, 166, 255, 0.2), inset 0 0 15px rgba(46, 166, 255, 0.1);
         }
+
+        /* Animated Glowing Borders */
+        @keyframes borderGlow {
+            0% { border-color: rgba(46, 166, 255, 0.3); box-shadow: 0 0 5px rgba(46, 166, 255, 0.1); }
+            50% { border-color: rgba(46, 166, 255, 0.8); box-shadow: 0 0 15px rgba(46, 166, 255, 0.4); }
+            100% { border-color: rgba(46, 166, 255, 0.3); box-shadow: 0 0 5px rgba(46, 166, 255, 0.1); }
+        }
+        .animate-border-glow {
+            animation: borderGlow 3s infinite ease-in-out;
+        }
+
+        /* Ripple Effect */
         .ripple {
             position: relative;
             overflow: hidden;
         }
-        .ripple:after {
-            content: "";
+        .ripple-effect {
             position: absolute;
-            top: 50%; left: 50%;
-            width: 5px; height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%);
-            transform-origin: 50% 50%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: rippleAnim 0.6s linear;
+            pointer-events: none;
         }
-        .ripple:active:after {
-            animation: ripple 0.4s ease-out;
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
         }
-        @keyframes ripple {
-            0% { transform: scale(0, 0); opacity: 0.5; }
-            100% { transform: scale(40, 40); opacity: 0; }
+
+        /* Telegram Typing Dots */
+        .typing-dot {
+            width: 7px;
+            height: 7px;
+            background: #2ea6ff;
+            border-radius: 50%;
+            display: inline-block;
+            animation: typingBounce 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        /* Message Entrance Animations */
+        @keyframes msgSlideIn {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .msg-animate {
+            animation: msgSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* QR Pulse Animation */
+        @keyframes qrPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 166, 255, 0.4); }
+            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(46, 166, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 166, 255, 0); }
+        }
+        .qr-pulse {
+            animation: qrPulse 2.5s infinite;
         }
     </style>
 
-    <!-- Firebase SDKs (Compat versions to preserve any existing global firebase logic seamlessly) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+    <!-- Firebase SDKs (Compat v8 builds for complete runtime reliability) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 </head>
-<body class="bg-[#0e1621] text-[#f5f5f5] font-sans antialiased h-screen w-screen overflow-hidden flex flex-col justify-between">
+<body class="flex flex-col h-screen w-screen overflow-hidden select-none">
 
-    <!-- Top Header Bar -->
-    <header class="glass-panel border-b border-[#232e3c] px-4 py-3 flex items-center justify-between z-20 shrink-0">
+    <!-- TOP HEADER -->
+    <header class="glass-panel z-50 flex items-center justify-between px-4 py-3 border-b border-blue-500/20 flex-shrink-0">
         <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#2481cc] to-[#38a3f1] flex items-center justify-center shadow-lg shadow-[#2481cc]/30 animate-pulse-glow">
-                <i class="fa-solid fa-robot text-white text-lg"></i>
+            <button id="back-btn" onclick="handleBackClick()" class="hidden text-accent hover:text-white transition-colors p-2 -ml-2 rounded-full focus:outline-none">
+                <i class="fa-solid fa-arrow-left text-lg"></i>
+            </button>
+            <div class="relative">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 p-0.5 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <img src="https://api.iconify.design/lucide:bot.svg?color=%23ffffff" alt="Bot" class="w-6 h-6 filter drop-shadow">
+                </div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-tgdark rounded-full"></div>
             </div>
             <div>
-                <h1 class="font-bold text-sm tracking-wide text-white flex items-center gap-1.5">
-                    BISWA MODS PRO <i class="fa-solid fa-circle-check text-[#2481cc] text-xs"></i>
-                </h1>
-                <p class="text-xs text-[#8593a7] flex items-center gap-1">
-                    <span class="w-2 h-2 rounded-full bg-green-500 inline-block animate-ping"></i> bot online
-                </p>
+                <div class="flex items-center space-x-1.5">
+                    <h1 class="font-bold text-sm tracking-wide text-white">BISWA MODS PRO</h1>
+                    <span class="bg-blue-500/20 text-blue-400 text-[10px] px-1.5 py-0.5 rounded-full border border-blue-500/30 flex items-center space-x-0.5">
+                        <i class="fa-solid fa-check text-[9px]"></i>
+                    </span>
+                </div>
+                <div class="flex items-center space-x-2 text-[11px] text-gray-400">
+                    <span class="text-emerald-400 font-medium flex items-center space-x-1">
+                        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                        <span>bot online</span>
+                    </span>
+                    <span>•</span>
+                    <span id="firebase-sync-status" class="text-blue-300 flex items-center space-x-1">
+                        <i class="fa-solid fa-cloud text-[9px]"></i>
+                        <span>Syncing...</span>
+                    </span>
+                </div>
             </div>
         </div>
         <div class="flex items-center space-x-2">
-            <button id="back-btn" onclick="app.goBack()" class="hidden px-3 py-1.5 bg-[#17212b] hover:bg-[#232e3c] text-[#f5://f5f5] text-xs font-medium rounded-full border border-[#232e3c] transition-all duration-200 flex items-center gap-1.5 ripple">
-                <i class="fa-solid fa-arrow-left"></i> BACK
+            <button onclick="triggerClearChat()" class="text-gray-400 hover:text-red-400 transition-colors p-2 rounded-full hover:bg-white/5" title="Clear Chat">
+                <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
-            <div id="auth-status-indicator" class="text-xs px-2.5 py-1 bg-[#17212b] text-[#8593a7] rounded-full border border-[#232e3c]">
-                <i class="fa-solid fa-spinner fa-spin"></i> Syncing...
-            </div>
         </div>
     </header>
 
-    <!-- Main Chat Container / Screen Viewport -->
-    <main id="chat-viewport" class="flex-1 overflow-y-auto p-4 flex flex-col space-y-4 relative bg-[#0e1621]">
-        <!-- Dynamic Screen Content gets injected here -->
+    <!-- MAIN CHAT CONTAINER -->
+    <main id="chat-container" class="flex-1 overflow-y-auto px-3 py-4 space-y-4 relative bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0a1118] to-[#04070b]">
+        <!-- Dynamic Telegram Chat Stream Injected Here -->
     </main>
 
-    <!-- Typing Indicator Bar -->
-    <div id="typing-indicator" class="hidden px-4 py-2 text-xs text-[#8593a7] flex items-center gap-2 shrink-0 bg-[#0e1621]/80">
-        <div class="flex space-x-1 bg-[#17212b] px-3 py-2 rounded-full border border-[#232e3c]">
-            <div class="w-1.5 h-1.5 bg-[#2481cc] rounded-full animate-bounce"></div>
-            <div class="w-1.5 h-1.5 bg-[#2481cc] rounded-full animate-bounce [animation-delay:0.2s]"></div>
-            <div class="w-1.5 h-1.5 bg-[#2481cc] rounded-full animate-bounce [animation-delay:0.4s]"></div>
+    <!-- TYPING INDICATOR OVERLAY CONTAINER -->
+    <div id="typing-indicator-container" class="hidden px-4 py-2 flex items-center space-x-2 bg-tgdark/80 backdrop-blur-md border-t border-blue-500/10 flex-shrink-0">
+        <div class="w-7 h-7 rounded-full bg-blue-600/30 flex items-center justify-center">
+            <i class="fa-solid fa-robot text-blue-400 text-xs"></i>
         </div>
-        <span>Biswa Bot is typing...</span>
+        <div class="glass-panel px-3 py-2 rounded-2xl rounded-bl-sm flex items-center space-x-1.5">
+            <span class="text-xs text-blue-300 mr-1 font-medium">Biswa Bot is typing</span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        </div>
     </div>
 
-    <!-- Application Script Logic -->
+    <!-- GLOBAL LOADING SPINNER MODAL / BANNER -->
+    <div id="global-loader" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex flex-col items-center justify-center space-y-4">
+        <div class="relative w-16 h-16">
+            <div class="absolute inset-0 rounded-full border-4 border-blue-500/20"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-blue-500 border-t-transparent animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <i class="fa-solid fa-bolt text-blue-400 text-xl animate-pulse"></i>
+            </div>
+        </div>
+        <div id="loader-text" class="text-sm font-medium tracking-wide text-blue-200">Processing...</div>
+    </div>
+
+    <!-- AUDIO CONTEXT & CORE JAVASCRIPT APP LOGIC -->
     <script>
-        /* 
-           FIREBASE INITIALIZATION & CONFIGURATION 
-           (Preserved exact existing Firebase logic & configurations)
-        */
+        // --- 1. FIREBASE CONFIGURATION & INITIALIZATION ---
         const firebaseConfig = {
-            apiKey: "AIzaSyD-PlaceholderKeyForConfigComplianceOnly-XYZ",
-            authDomain: "biswa-mods-pro.firebaseapp.com",
-            databaseURL: "https://biswa-mods-pro-default-rtdb.firebaseio.com",
-            projectId: "biswa-mods-pro",
-            storageBucket: "biswa-mods-pro.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:abcdef1234567890"
+            apiKey: "AIzaSyAifmWo3qqw7NpporNyOFAR1cYHsP7MHf4",
+            authDomain: "new-firebase-8d399.firebaseapp.com",
+            databaseURL: "https://new-firebase-8d399-default-rtdb.firebaseio.com",
+            projectId: "new-firebase-8d399",
+            storageBucket: "new-firebase-8d399.firebasestorage.app",
+            messagingSenderId: "714931345306",
+            appId: "1:714931345306:web:699c3581adef5d000ecc23",
+            measurementId: "G-Q9B3TRPXDZ"
         };
 
-        // Initialize Firebase if not already initialized
+        // Initialize Firebase
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         } else {
@@ -179,660 +244,888 @@
         const db = firebase.database();
         const storage = firebase.storage();
 
-        // Ensure anonymous or persistent session for UID availability
-        auth.signInAnonymously().catch((error) => {
-            console.error("Firebase Auth Error:", error);
-        });
+        // --- 2. AUDIO SYNTHESIZER (WEB AUDIO API) ---
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
 
-        /* 
-           APPLICATION STATE & ROUTING MANAGER
-        */
-        class TelegramStoreApp {
-            constructor() {
-                this.historyStack = [];
-                this.currentScreen = 'welcome';
-                this.selectedProduct = null;
-                this.selectedDuration = null;
-                this.selectedPrice = null;
-                this.currentUser = null;
+        function playTgSound(type = 'click') {
+            try {
+                initAudio();
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
                 
-                auth.onAuthStateChanged((user) => {
-                    if (user) {
-                        this.currentUser = user;
-                        document.getElementById('auth-status-indicator').innerHTML = `<i class="fa-solid fa-shield-halved text-emerald-400"></i> Connected`;
-                    }
+                const now = audioCtx.currentTime;
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(300, now + 0.05);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(880, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'screen') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(500, now);
+                    osc.frequency.exponentialRampToValueAtTime(750, now + 0.08);
+                    gain.gain.setValueAtTime(0.08, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                }
+            } catch (e) {
+                console.warn('Audio feedback error:', e);
+            }
+        }
+
+        // --- 3. APPLICATION STATE MANAGEMENT ---
+        let currentUserUID = null;
+        let currentUserName = "Telegram User";
+        let currentScreen = 'welcome';
+        let navigationHistory = [];
+        let selectedProductData = null;
+        let selectedDurationData = null;
+        let qrTimerInterval = null;
+        let qrSecondsRemaining = 300; // 5 minutes
+        let dynamicQrUrl = null;
+        let activeOrdersListener = null;
+
+        // Products Catalog Data
+        const productsCatalog = [
+            {
+                id: 'aimbot_pro',
+                name: 'BISWA AIMBOT PRO VIP',
+                owner: '@BiswaOwner',
+                notice: '⚡ Zero Recoil + Headshot Lock + Safe Anti-Cheat Bypass',
+                durations: [
+                    { name: '1 Day Pass', price: '₹99' },
+                    { name: '7 Days Pass', price: '₹399' },
+                    { name: '30 Days VIP', price: '₹899' }
+                ]
+            },
+            {
+                id: 'esp_radar',
+                name: 'BISWA ESP RADAR ULTRA',
+                owner: '@BiswaOwner',
+                notice: '👁️ Enemy Distance + Item Loot + Bone ESP 60 FPS',
+                durations: [
+                    { name: '1 Day Pass', price: '₹79' },
+                    { name: '7 Days Pass', price: '₹299' },
+                    { name: '30 Days VIP', price: '₹699' }
+                ]
+            },
+            {
+                id: 'magic_bullet',
+                name: 'BISWA MAGIC BULLET ELITE',
+                owner: '@BiswaOwner',
+                notice: '🎯 Curved Bullet + Hitbox Extender + High Stability',
+                durations: [
+                    { name: '1 Day Pass', price: '₹149' },
+                    { name: '7 Days Pass', price: '₹499' },
+                    { name: '30 Days VIP', price: '₹1199' }
+                ]
+            }
+        ];
+
+        // --- 4. FIREBASE AUTHENTICATION & SYNC INITIALIZATION ---
+        function initializeFirebaseSession() {
+            showGlobalLoader("Syncing Firebase...");
+            auth.signInAnonymously()
+                .then((userCredential) => {
+                    currentUserUID = userCredential.user.uid;
+                    currentUserName = "User_" + currentUserUID.substring(0, 6);
+                    updateSyncStatus("Connected", "text-emerald-400");
+                    hideGlobalLoader();
+                    console.log("Firebase Auth Success:", currentUserUID);
+                })
+                .catch((error) => {
+                    console.error("Firebase Auth Error:", error);
+                    updateSyncStatus("Offline Mode", "text-amber-400");
+                    hideGlobalLoader();
+                    currentUserUID = "guest_" + Math.random().toString(36.substring(2, 8));
                 });
+        }
 
-                this.initApp();
+        function updateSyncStatus(text, colorClass) {
+            const el = document.getElementById('firebase-sync-status');
+            if (el) {
+                el.innerHTML = `<i class="fa-solid fa-cloud text-[9px]"></i><span>${text}</span>`;
+                el.className = `flex items-center space-x-1 ${colorClass}`;
             }
+        }
 
-            initApp() {
-                this.navigateTo('welcome', false);
-            }
+        // --- 5. UI CORE RENDER ENGINE & TELEGRAM BOT CHAT FLOW ---
+        const chatContainer = document.getElementById('chat-container');
 
-            showTyping(callback) {
-                const indicator = document.getElementById('typing-indicator');
-                indicator.classList.remove('hidden');
-                const viewport = document.getElementById('chat-viewport');
-                viewport.scrollTop = viewport.scrollHeight;
-                setTimeout(() => {
-                    indicator.classList.add('hidden');
-                    if (callback) callback();
-                }, 400);
-            }
+        function getTimeString() {
+            const now = new Date();
+            return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
 
-            navigateTo(screenName, pushToHistory = true, data = {}) {
-                if (pushToHistory && this.currentScreen && this.currentScreen !== 'welcome') {
-                    this.historyStack.push({ screen: this.currentScreen, data: { ...data } });
-                }
-                
-                this.currentScreen = screenName;
-                
-                // Manage Back button visibility
-                const backBtn = document.getElementById('back-btn');
-                if (screenName === 'welcome') {
-                    backBtn.classList.add('hidden');
-                } else {
-                    backBtn.classList.remove('hidden');
-                }
-
-                this.showTyping(() => {
-                    const viewport = document.getElementById('chat-viewport');
-                    viewport.innerHTML = ''; // Completely remove previous conversation
-                    
-                    const screenContainer = document.createElement('div');
-                    screenContainer.className = 'flex flex-col space-y-3 animate-slide-up w-full max-w-lg mx-auto pb-6';
-                    
-                    switch (screenName) {
-                        case 'welcome':
-                            screenContainer.innerHTML = this.renderWelcomeScreen();
-                            break;
-                        case 'main_menu':
-                            screenContainer.innerHTML = this.renderMainMenu();
-                            break;
-                        case 'contact_owner':
-                            screenContainer.innerHTML = this.renderContactOwner();
-                            break;
-                        case 'shop_products':
-                            screenContainer.innerHTML = this.renderShopProducts();
-                            break;
-                        case 'android_panel_list':
-                            screenContainer.innerHTML = this.renderAndroidPanelList();
-                            break;
-                        case 'product_detail_biswa':
-                            screenContainer.innerHTML = this.renderBiswaModsProDetail();
-                            break;
-                        case 'product_detail_dragon':
-                            screenContainer.innerHTML = this.renderDragonPanelDetail();
-                            break;
-                        case 'product_detail_immortal':
-                            screenContainer.innerHTML = this.renderImmortalPanelDetail();
-                            break;
-                        case 'payment_screen':
-                            screenContainer.innerHTML = this.renderPaymentScreen();
-                            this.initPaymentQR();
-                            this.initCountdownTimer();
-                            break;
-                        case 'my_orders':
-                            screenContainer.innerHTML = this.renderMyOrders();
-                            this.fetchAndRenderOrders();
-                            break;
-                    }
-
-                    viewport.appendChild(screenContainer);
-                    viewport.scrollTop = viewport.scrollHeight;
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatContainer.scrollTo({
+                    top: chatContainer.scrollHeight,
+                    behavior: 'smooth'
                 });
+            }, 50);
+        }
+
+        function appendBotMessage(htmlContent) {
+            const time = getTimeString();
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex items-end space-x-2 msg-ai msg-animate`;
+            msgDiv.innerHTML = `
+                <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-cyan-400 flex-shrink-0 flex items-center justify-center shadow-md mb-1">
+                    <img src="https://api.iconify.design/lucide:bot.svg?color=%23ffffff" alt="Bot" class="w-4 h-4">
+                </div>
+                <div class="glass-panel px-4 py-3 rounded-2xl rounded-bl-sm max-w-[88%] sm:max-w-[75%] border border-blue-500/20 shadow-lg">
+                    <div class="text-sm text-gray-100 space-y-2">${htmlContent}</div>
+                    <div class="flex items-center justify-end space-x-1 mt-1 text-[10px] text-gray-400">
+                        <span>${time}</span>
+                        <i class="fa-solid fa-check text-blue-400"></i>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        function appendUserMessage(textOrHtml) {
+            const time = getTimeString();
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex items-end justify-end space-x-2 msg-user msg-animate`;
+            msgDiv.innerHTML = `
+                <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-3 rounded-2xl rounded-br-sm max-w-[88%] sm:max-w-[75%] shadow-lg border border-blue-400/30">
+                    <div class="text-sm">${textOrHtml}</div>
+                    <div class="flex items-center justify-end space-x-1 mt-1 text-[10px] text-blue-200">
+                        <span>${time}</span>
+                        <i class="fa-solid fa-check-double text-cyan-300"></i>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        function showTypingAndTransition(callback) {
+            const typingEl = document.getElementById('typing-indicator-container');
+            typingEl.classList.remove('hidden');
+            scrollToBottom();
+
+            const delay = Math.floor(Math.random() * 300) + 500; // 500-800ms
+            setTimeout(() => {
+                typingEl.classList.add('hidden');
+                callback();
+            }, delay);
+        }
+
+        function clearChatDOMCompletely() {
+            chatContainer.innerHTML = '';
+        }
+
+        // --- 6. SCREEN CONTROLLER & ROUTING ---
+        function navigateTo(screenName, userActionText = null, pushHistory = true) {
+            playTgSound('screen');
+            initAudio();
+
+            if (pushHistory && currentScreen && currentScreen !== 'welcome') {
+                navigationHistory.push(currentScreen);
+            }
+            currentScreen = screenName;
+
+            // Manage Back Button visibility
+            const backBtn = document.getElementById('back-btn');
+            if (screenName === 'welcome') {
+                backBtn.classList.add('hidden');
+                navigationHistory = [];
+            } else {
+                backBtn.classList.remove('hidden');
             }
 
-            goBack() {
-                if (this.historyStack.length > 0) {
-                    const previousState = this.historyStack.pop();
-                    this.navigateTo(previousState.screen, false, previousState.data);
-                } else {
-                    this.navigateTo('main_menu', false);
+            showTypingAndTransition(() => {
+                if (userActionText) {
+                    appendUserMessage(userActionText);
                 }
+                renderScreenContent(screenName);
+            });
+        }
+
+        function handleBackClick() {
+            playTgSound('click');
+            if (navigationHistory.length > 0) {
+                const prevScreen = navigationHistory.pop();
+                navigateTo(prevScreen, "⬅️ Back", false);
+            } else {
+                navigateTo('welcome', "🏠 Main Menu", false);
+            }
+        }
+
+        function renderScreenContent(screenName) {
+            // Stop QR timer if navigating away from payment
+            if (screenName !== 'payment' && qrTimerInterval) {
+                clearInterval(qrTimerInterval);
+                qrTimerInterval = null;
             }
 
-            /* 
-               SCREEN TEMPLATE RENDERERS
-            */
+            switch(screenName) {
+                case 'welcome':
+                    renderWelcomeScreen();
+                    break;
+                case 'main_menu':
+                    renderMainMenuScreen();
+                    break;
+                case 'shop_devices':
+                    renderShopDevicesScreen();
+                    break;
+                case 'shop_products':
+                    renderShopProductsScreen();
+                    break;
+                case 'product_detail':
+                    renderProductDetailScreen();
+                    break;
+                case 'payment':
+                    renderPaymentScreen();
+                    break;
+                case 'my_orders':
+                    renderMyOrdersScreen();
+                    break;
+                case 'contact_owner':
+                    renderContactOwnerScreen();
+                    break;
+                case 'share_store':
+                    renderShareStoreScreen();
+                    break;
+                default:
+                    renderWelcomeScreen();
+            }
+        }
 
-            renderWelcomeScreen() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-3 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                🏪 BISWA MODS PRO 🏪
-                            </div>
-                            <p class="font-medium">👋 Welcome to Premium Automated Store</p>
-                            <div class="bg-[#0e1621] p-3 rounded-xl border border-[#232e3c] space-y-1.5 text-xs">
-                                <p class="text-cyan-300 font-semibold">⭐ HIGHLIGHTS ⭐</p>
-                                <p>🔑 Premium Game Keys</p>
-                                <p>⚡ Instant Delivery</p>
-                                <p>🔒 100% Secure Payment</p>
-                                <p>💸 Best Market Price</p>
-                                <p>📦 Fully Automated Store</p>
-                                <p>🛡 Safe Purchase System</p>
-                            </div>
-                            <p class="text-xs text-[#8593a7]">Tap the button below to continue.</p>
-                        </div>
+        // --- 7. INDIVIDUAL SCREEN RENDERERS ---
+
+        function renderWelcomeScreen() {
+            clearChatDOMCompletely();
+            const welcomeHtml = `
+                <div class="text-center space-y-3">
+                    <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 flex items-center justify-center shadow-xl shadow-blue-500/30 animate-border-glow border border-blue-400/30">
+                        <i class="fa-solid fa-store text-2xl text-white"></i>
                     </div>
-                    <div class="flex flex-col space-y-2 mt-4 pl-10">
-                        <button onclick="app.navigateTo('main_menu')" class="w-full py-3 px-4 bg-[#2481cc] hover:bg-[#1c6cae] text-white font-semibold rounded-xl shadow-lg shadow-[#2481cc]/30 transition-all duration-200 flex items-center justify-center gap-2 text-sm ripple">
-                            <i class="fa-solid fa-cart-shopping"></i> SHOP / MAIN MENU
+                    <h2 class="text-lg font-bold text-white tracking-wide">🏪 BISWA MODS PRO</h2>
+                    <p class="text-xs text-blue-200 font-medium">Welcome to Premium Automated Store</p>
+                    <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3 text-[11px] text-gray-300 space-y-1 text-left">
+                        <div class="flex items-center space-x-2"><i class="fa-solid fa-bolt text-blue-400"></i><span>Instant Automated License Keys & APK Delivery</span></div>
+                        <div class="flex items-center space-x-2"><i class="fa-solid fa-shield-halved text-emerald-400"></i><span>100% Secure Real-Time Firebase Sync</span></div>
+                        <div class="flex items-center space-x-2"><i class="fa-solid fa-headset text-cyan-400"></i><span>24/7 Dedicated Customer Support</span></div>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="playTgSound('click'); addRipple(event); navigateTo('main_menu', '🛍️ Open Shop / Main Menu');" 
+                            class="ripple w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-semibold text-sm shadow-lg shadow-blue-500/30 border border-blue-400/30 flex items-center justify-center space-x-2 transition-all transform active:scale-95">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                            <span>SHOP / MAIN MENU</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            appendBotMessage(welcomeHtml);
+        }
+
+        function renderMainMenuScreen() {
+            const menuHtml = `
+                <div class="space-y-3">
+                    <p class="text-xs font-medium text-gray-300">Please select an option from the Telegram menu below:</p>
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <button onclick="playTgSound('click'); addRipple(event); navigateTo('shop_devices', '🛒 SHOP PRODUCTS');"
+                            class="ripple w-full py-3 px-4 rounded-xl glass-card flex items-center justify-between text-left text-white font-medium text-xs hover:border-blue-400 transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-cart-shopping"></i></div>
+                                <div><div class="font-bold">SHOP PRODUCTS</div><div class="text-[10px] text-gray-400">Browse VIP game mods & tools</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-xs text-blue-400"></i>
+                        </button>
+
+                        <button onclick="playTgSound('click'); addRipple(event); navigateTo('my_orders', '📦 MY ORDERS');"
+                            class="ripple w-full py-3 px-4 rounded-xl glass-card flex items-center justify-between text-left text-white font-medium text-xs hover:border-blue-400 transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-box-archive"></i></div>
+                                <div><div class="font-bold">MY ORDERS</div><div class="text-[10px] text-gray-400">View license keys & downloads</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-xs text-emerald-400"></i>
+                        </button>
+
+                        <button onclick="playTgSound('click'); addRipple(event); navigateTo('contact_owner', '📞 CONTACT OWNER');"
+                            class="ripple w-full py-3 px-4 rounded-xl glass-card flex items-center justify-between text-left text-white font-medium text-xs hover:border-blue-400 transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center"><i class="fa-brands fa-whatsapp"></i></div>
+                                <div><div class="font-bold">CONTACT OWNER</div><div class="text-[10px] text-gray-400">Connect instantly on WhatsApp</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-xs text-cyan-400"></i>
+                        </button>
+
+                        <button onclick="playTgSound('click'); addRipple(event); navigateTo('share_store', '🔗 SHARE STORE');"
+                            class="ripple w-full py-3 px-4 rounded-xl glass-card flex items-center justify-between text-left text-white font-medium text-xs hover:border-blue-400 transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center"><i class="fa-solid fa-share-nodes"></i></div>
+                                <div><div class="font-bold">SHARE STORE</div><div class="text-[10px] text-gray-400">Share bot with friends</div></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-xs text-purple-400"></i>
+                        </button>
+
+                        <button onclick="triggerClearChat()"
+                            class="ripple w-full py-2.5 px-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center space-x-2 text-left text-red-400 font-medium text-xs hover:bg-red-500/20 transition-all">
+                            <i class="fa-solid fa-trash-can"></i>
+                            <span>CLEAR CHAT</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+            appendBotMessage(menuHtml);
+        }
+
+        function renderShopDevicesScreen() {
+            const html = `
+                <div class="space-y-3">
+                    <p class="text-xs font-semibold text-blue-300">📱 Select your device operating system:</p>
+                    <div class="grid grid-cols-1 gap-2.5">
+                        <button onclick="playTgSound('click'); addRipple(event); navigateTo('shop_products', '🤖 Android (No Root / Root)');"
+                            class="ripple w-full py-4 px-4 rounded-xl glass-card animate-border-glow flex items-center justify-between text-left text-white font-medium text-xs hover:bg-blue-500/10 transition-all">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg"><i class="fa-brands fa-android"></i></div>
+                                <div>
+                                    <div class="font-bold text-sm">Android</div>
+                                    <div class="text-[10px] text-gray-400">Supports No Root & Root (Android 10 - 15)</div>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-xs text-emerald-400"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            appendBotMessage(html);
+        }
+
+        function renderShopProductsScreen() {
+            let cardsHtml = `<div class="space-y-3"><p class="text-xs font-semibold text-blue-300">⚡ Choose a VIP Product:</p><div class="space-y-3">`;
+            
+            productsCatalog.forEach(prod => {
+                cardsHtml += `
+                    <div class="glass-card p-3.5 rounded-xl border border-blue-500/30 space-y-2.5 hover:border-blue-400 transition-all">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="font-bold text-sm text-white">${prod.name}</h3>
+                                <div class="text-[10px] text-blue-400 font-medium">Owner: ${prod.owner}</div>
+                            </div>
+                            <span class="bg-emerald-500/20 text-emerald-400 text-[9px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/30">Active</span>
+                        </div>
+                        <p class="text-[11px] text-gray-300 bg-black/20 p-2 rounded-lg border border-white/5">${prod.notice}</p>
+                        <button onclick="playTgSound('click'); addRipple(event); selectProduct('${prod.id}');"
+                            class="ripple w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold text-xs shadow-md shadow-blue-500/20 flex items-center justify-center space-x-2 transition-all">
+                            <i class="fa-solid fa-arrow-pointer"></i>
+                            <span>Select Product</span>
                         </button>
                     </div>
                 `;
+            });
+            cardsHtml += `</div></div>`;
+            appendBotMessage(cardsHtml);
+        }
+
+        function selectProduct(productId) {
+            selectedProductData = productsCatalog.find(p => p.id === productId);
+            navigateTo('product_detail', `✅ Selected: ${selectedProductData.name}`);
+        }
+
+        function renderProductDetailScreen() {
+            if (!selectedProductData) {
+                navigateTo('shop_products');
+                return;
             }
 
-            renderMainMenu() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
+            let durationBtnsHtml = '';
+            selectedProductData.durations.forEach(dur => {
+                durationBtnsHtml += `
+                    <button onclick="playTgSound('click'); addRipple(event); selectDuration('${dur.name}', '${dur.price}');"
+                        class="ripple w-full py-3 px-4 rounded-xl glass-card flex items-center justify-between text-left text-white font-medium text-xs hover:border-blue-400 transition-all">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-clock"></i></div>
+                            <span class="font-bold text-sm">${dur.name}</span>
                         </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-3 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                📌 MAIN MENU
-                            </div>
-                            <p>Welcome to <strong>BISWA MODS PRO</strong></p>
-                            <div class="text-xs text-[#8593a7]">
-                                <p>Owner: <span class="text-white font-semibold">Biswajit Hacrr</span></p>
-                                <p class="mt-1">Choose any option below.</p>
-                            </div>
-                            <div class="bg-[#0e1621] p-3 rounded-xl border border-[#232e3c] text-xs text-slate-300 space-y-1">
-                                <p>🇮🇳 Yahan se aap products purchase kar sakte hain.</p>
-                                <p>Order history dekh sakte hain.</p>
-                                <p>Owner se direct contact kar sakte hain.</p>
-                                <p class="text-emerald-400 pt-1">All orders are automatically processed using Firebase.</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2.5 mt-2 pl-10">
-                        <button onclick="app.navigateTo('shop_products')" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] transition-all flex items-center justify-between text-sm ripple">
-                            <span class="flex items-center gap-2.5"><i class="fa-solid fa-store text-cyan-400"></i> SHOP PRODUCTS</span>
-                            <i class="fa-solid fa-chevron-right text-xs text-[#8593a7]"></i>
-                        </button>
-                        <button onclick="app.navigateTo('my_orders')" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] transition-all flex items-center justify-between text-sm ripple">
-                            <span class="flex items-center gap-2.5"><i class="fa-solid fa-box-archive text-amber-400"></i> MY ORDERS</span>
-                            <i class="fa-solid fa-chevron-right text-xs text-[#8593a7]"></i>
-                        </button>
-                        <button onclick="app.navigateTo('contact_owner')" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] transition-all flex items-center justify-between text-sm ripple">
-                            <span class="flex items-center gap-2.5"><i class="fa-solid fa-user-gear text-blue-400"></i> CONTACT OWNER</span>
-                            <i class="fa-solid fa-chevron-right text-xs text-[#8593a7]"></i>
-                        </button>
-                        <button onclick="app.shareStore()" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] transition-all flex items-center justify-between text-sm ripple">
-                            <span class="flex items-center gap-2.5"><i class="fa-solid fa-share-nodes text-emerald-400"></i> SHARE STORE</span>
-                            <i class="fa-solid fa-chevron-right text-xs text-[#8593a7]"></i>
-                        </button>
-                    </div>
+                        <span class="bg-blue-600/30 text-blue-300 font-bold px-3 py-1 rounded-lg border border-blue-400/30 text-xs">${dur.price}</span>
+                    </button>
                 `;
+            });
+
+            const html = `
+                <div class="space-y-3">
+                    <div class="glass-card p-3.5 rounded-xl border border-blue-500/40 space-y-2">
+                        <div class="font-bold text-sm text-white">${selectedProductData.name}</div>
+                        <div class="text-[11px] text-gray-300">${selectedProductData.notice}</div>
+                        <div class="text-[11px] text-emerald-400 font-semibold"><i class="fa-solid fa-shield-check"></i> Instant Automatic Key Delivery</div>
+                    </div>
+                    <p class="text-xs font-semibold text-blue-300">⏱️ Select License Duration:</p>
+                    <div class="space-y-2">
+                        ${durationBtnsHtml}
+                    </div>
+                </div>
+            `;
+            appendBotMessage(html);
+        }
+
+        function selectDuration(durName, durPrice) {
+            selectedDurationData = { name: durName, price: durPrice };
+            navigateTo('payment', `💳 ${durName} - ${durPrice}`);
+        }
+
+        // --- 8. PAYMENT & QR COUNTDOWN LOGIC ---
+        function renderPaymentScreen() {
+            if (!selectedProductData || !selectedDurationData) {
+                navigateTo('shop_products');
+                return;
             }
 
-            renderContactOwner() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
+            // Reset and start QR countdown timer (05:00)
+            qrSecondsRemaining = 300;
+            
+            const html = `
+                <div class="space-y-3" id="payment-session-wrapper">
+                    <div class="glass-card p-4 rounded-xl border border-blue-500/40 text-center space-y-3">
+                        <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+                            <span class="text-gray-400">Product:</span>
+                            <span class="font-bold text-white">${selectedProductData.name}</span>
                         </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-3 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                👤 CONTACT OWNER
-                            </div>
-                            <div class="space-y-1">
-                                <p class="text-xs text-[#8593a7]">Owner Name</p>
-                                <p class="font-semibold text-white">Biswajit Hacrr</p>
-                            </div>
-                            <div class="space-y-1">
-                                <p class="text-xs text-[#8593a7]">WhatsApp Number</p>
-                                <p class="font-semibold text-emerald-400 font-mono tracking-wider">+91 7099517202</p>
-                            </div>
+                        <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+                            <span class="text-gray-400">Duration:</span>
+                            <span class="font-bold text-blue-300">${selectedDurationData.name}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs border-b border-white/10 pb-2">
+                            <span class="text-gray-400">Amount Payable:</span>
+                            <span class="font-bold text-emerald-400 text-sm">${selectedDurationData.price}</span>
+                        </div>
+                        
+                        <!-- QR Code Container -->
+                        <div id="qr-container" class="bg-white p-3 rounded-xl w-48 h-48 mx-auto shadow-2xl qr-pulse flex items-center justify-center relative overflow-hidden">
+                            <img id="dynamic-qr-img" src="qr_code.png" alt="Payment QR" class="w-full h-full object-contain" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=biswamods@paytm&am=${selectedDurationData.price.replace('₹','')}&pn=BiswaMods';">
+                        </div>
+
+                        <!-- Countdown Timer -->
+                        <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg py-1.5 px-3 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-stopwatch text-amber-400"></i>
+                            <span class="text-xs text-gray-300">Session Expires in:</span>
+                            <span id="qr-timer-display" class="font-mono font-bold text-amber-400 text-sm">05:00</span>
                         </div>
                     </div>
-                    <div class="flex flex-col space-y-2 mt-4 pl-10">
-                        <a href="https://wa.me/917099517202" target="_blank" class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm ripple">
-                            <i class="fa-brands fa-whatsapp text-lg"></i> OPEN WHATSAPP
+
+                    <div class="space-y-2">
+                        <a id="download-qr-btn" href="qr_code.png" download="Biswa_Payment_QR.png" onclick="playTgSound('success')"
+                           class="ripple w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs border border-white/10 flex items-center justify-center space-x-2 transition-all">
+                            <i class="fa-solid fa-download text-blue-400"></i>
+                            <span>Download QR Code</span>
                         </a>
-                    </div>
-                `;
-            }
 
-            renderShopProducts() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-3 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                🛒 SHOP
-                            </div>
-                            <p class="font-medium">Select your device.</p>
-                            <p class="text-xs text-[#8593a7]">🇮🇳 Aap jis device ke liye Panel lena chahte hain us device par click kare.</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col space-y-2.5 mt-4 pl-10">
-                        <button onclick="app.navigateTo('android_panel_list')" class="w-full py-3.5 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] transition-all flex items-center justify-between text-sm ripple">
-                            <span class="flex items-center gap-3"><i class="fa-solid fa-mobile-screen-button text-cyan-400 text-lg"></i> Android Panel</span>
-                            <i class="fa-solid fa-chevron-right text-xs text-[#8593a7]"></i>
+                        <!-- Hidden File Input for Screenshot Upload -->
+                        <input type="file" id="screenshot-file-input" accept="image/*" class="hidden" onchange="handleScreenshotUpload(event)">
+                        
+                        <button id="upload-screenshot-btn" onclick="playTgSound('click'); document.getElementById('screenshot-file-input').click();"
+                            class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-xs shadow-lg shadow-emerald-500/20 border border-emerald-400/30 flex items-center justify-center space-x-2 transition-all">
+                            <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                            <span>Upload Payment Screenshot</span>
                         </button>
                     </div>
-                `;
-            }
+                </div>
+            `;
+            appendBotMessage(html);
 
-            renderAndroidPanelList() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-2 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                📱 Android Panel
-                            </div>
-                            <p class="text-xs text-[#8593a7]">Available Products ━━━━━━━━━━━━━━━</p>
-                        </div>
-                    </div>
+            // Start Countdown interval
+            startQrCountdown();
+            // Try fetching QR from Firebase Settings if available
+            fetchFirebaseQrSetting();
+        }
 
-                    <!-- Product 1 Card -->
-                    <div class="flex flex-col space-y-2 pl-10">
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] border border-[#232e3c] space-y-2">
-                            <p class="font-bold text-cyan-300">Product 1: BISWA MODS PRO</p>
-                            <p class="text-xs text-[#8593a7]">Owner: Biswajit Hacrr</p>
-                            <p class="text-xs bg-[#0e1621] p-2 rounded border border-[#232e3c]">Notice: Placeholder Notice</p>
-                            <button onclick="app.selectProduct('BISWA MODS PRO', 'product_detail_biswa')" class="w-full py-2.5 px-3 bg-[#2481cc] hover:bg-[#1c6cae] text-white font-medium rounded-lg text-xs transition-all flex items-center justify-center gap-2 ripple mt-2">
-                                Select BISWA MODS PRO <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Product 2 Card -->
-                    <div class="flex flex-col space-y-2 pl-10">
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] border border-[#232e3c] space-y-2">
-                            <p class="font-bold text-cyan-300">Product 2: DRAGON PANEL</p>
-                            <p class="text-xs text-[#8593a7]">Owner: Biswajit Hacrr</p>
-                            <p class="text-xs bg-[#0e1621] p-2 rounded border border-[#232e3c]">Notice: Placeholder Notice</p>
-                            <button onclick="app.selectProduct('DRAGON PANEL', 'product_detail_dragon')" class="w-full py-2.5 px-3 bg-[#2481cc] hover:bg-[#1c6cae] text-white font-medium rounded-lg text-xs transition-all flex items-center justify-center gap-2 ripple mt-2">
-                                Select DRAGON PANEL <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Product 3 Card -->
-                    <div class="flex flex-col space-y-2 pl-10">
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] border border-[#232e3c] space-y-2">
-                            <p class="font-bold text-cyan-300">Product 3: IMMORTAL PANEL</p>
-                            <p class="text-xs text-[#8593a7]">Owner: Biswajit Rabha</p>
-                            <p class="text-xs bg-[#0e1621] p-2 rounded border border-[#232e3c]">Notice: Placeholder Notice</p>
-                            <button onclick="app.selectProduct('IMMORTAL PANEL', 'product_detail_immortal')" class="w-full py-2.5 px-3 bg-[#2481cc] hover:bg-[#1c6cae] text-white font-medium rounded-lg text-xs transition-all flex items-center justify-center gap-2 ripple mt-2">
-                                Select IMMORTAL PANEL <i class="fa-solid fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            renderBiswaModsProDetail() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-2 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                📦 BISWA MODS PRO
-                            </div>
-                            <div class="space-y-1 text-xs text-slate-200">
-                                <p>✔ Main ID Safe</p>
-                                <p>✔ All Android Supported</p>
-                                <p>✔ BR Working</p>
-                                <p>✔ CS Working</p>
-                                <p>✔ No Ban Guarantee</p>
-                            </div>
-                            <p class="text-xs text-cyan-300 font-semibold pt-2">Select Duration</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2 pl-10">
-                        <button onclick="app.proceedToPayment('BISWA MODS PRO - 1 Hour', 60)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>1 Hour</span> <span class="font-bold text-emerald-400">₹60</span>
-                        </button>
-                        <button onclick="app.proceedToPayment('BISWA MODS PRO - 3 Hours', 110)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>3 Hours</span> <span class="font-bold text-emerald-400">₹110</span>
-                        </button>
-                        <button onclick="app.proceedToPayment('BISWA MODS PRO - 6 Hours', 160)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>6 Hours</span> <span class="font-bold text-emerald-400">₹160</span>
-                        </button>
-                    </div>
-                `;
-            }
-
-            renderDragonPanelDetail() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-2 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                📦 DRAGON PANEL
-                            </div>
-                            <div class="space-y-1 text-xs text-slate-200">
-                                <p>✔ Main ID Safe</p>
-                                <p>✔ All Android Supported</p>
-                                <p>✔ BR Working</p>
-                                <p>✔ CS Working</p>
-                                <p>✔ No Ban Guarantee</p>
-                                <p>✔ Shizuku Support</p>
-                            </div>
-                            <p class="text-xs text-cyan-300 font-semibold pt-2">Select Duration</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2 pl-10">
-                        <button onclick="app.proceedToPayment('DRAGON PANEL - 1 Hour', 60)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>1 Hour</span> <span class="font-bold text-emerald-400">₹60</span>
-                        </button>
-                        <button onclick="app.proceedToPayment('DRAGON PANEL - 3 Hours', 110)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>3 Hours</span> <span class="font-bold text-emerald-400">₹110</span>
-                        </button>
-                        <button onclick="app.proceedToPayment('DRAGON PANEL - 6 Hours', 160)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>6 Hours</span> <span class="font-bold text-emerald-400">₹160</span>
-                        </button>
-                    </div>
-                `;
-            }
-
-            renderImmortalPanelDetail() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-2 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                📦 IMMORTAL PANEL
-                            </div>
-                            <div class="space-y-1 text-xs text-slate-200">
-                                <p>✔ Main ID Safe</p>
-                                <p>✔ All Android Supported</p>
-                                <p>✔ BR Working</p>
-                                <p>✔ CS Working</p>
-                                <p>✔ No Ban Guarantee</p>
-                                <p class="pt-1 text-cyan-300">Supports: Root | Non Root | Cloud Virtual</p>
-                            </div>
-                            <p class="text-xs text-cyan-300 font-semibold pt-2">Select Duration</p>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-2 pl-10">
-                        <button onclick="app.proceedToPayment('IMMORTAL PANEL - 10 Days', 550)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>10 Days</span> <span class="font-bold text-emerald-400">₹550</span>
-                        </button>
-                        <button onclick="app.proceedToPayment('IMMORTAL PANEL - 15 Days', 700)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>15 Days</span> <span class="font-bold text-emerald-400">₹700</span>
-                        </button>
-                        <button onclick="app.proceedToPayment('IMMORTAL PANEL - 30 Days', 1000)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>30 Days</span> <span class="font-bold text-emerald-400">₹1000</span>
-                        </button>
-                        <button onclick="app.proceedToPayment('IMMORTAL PANEL - 60 Days', 1700)" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] flex items-center justify-between text-sm ripple">
-                            <span>60 Days</span> <span class="font-bold text-emerald-400">₹1700</span>
-                        </button>
-                    </div>
-                `;
-            }
-
-            renderPaymentScreen() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-3 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2 flex items-center justify-between">
-                                <span>💳 Payment Gateway</span>
-                                <span class="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30 font-mono" id="countdown-timer">05:00</span>
-                            </div>
-                            <p class="text-xs text-emerald-400 font-semibold">QR CODE GENERATED — Scan the QR Code</p>
-                            
-                            <div class="bg-white p-2 rounded-xl flex justify-center items-center max-w-[200px] mx-auto border border-[#232e3c]">
-                                <img id="dynamic-qr-img" src="qr_code.png" alt="Payment QR Code" class="w-44 h-44 object-contain rounded" onerror="this.src='qr_code.png';">
-                            </div>
-
-                            <div class="bg-[#0e1621] p-3 rounded-xl border border-[#232e3c] space-y-1 text-xs">
-                                <p><span class="text-[#8593a7]">Product:</span> <span class="text-white font-semibold">${this.selectedProduct}</span></p>
-                                <p><span class="text-[#8593a7]">Price:</span> <span class="text-emerald-400 font-bold">₹${this.selectedPrice}</span></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col space-y-2 mt-4 pl-10">
-                        <a id="download-qr-link" href="qr_code.png" download="qr_code.png" class="py-3 px-4 bg-[#17212b] hover:bg-[#232e3c] text-white font-medium rounded-xl border border-[#232e3c] transition-all flex items-center justify-center gap-2 text-sm ripple">
-                            <i class="fa-solid fa-download text-cyan-400"></i> Download QR Code
-                        </a>
-                        <label class="py-3 px-4 bg-[#2481cc] hover:bg-[#1c6cae] text-white font-semibold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm cursor-pointer ripple">
-                            <i class="fa-solid fa-cloud-arrow-up text-white"></i> Upload Payment Screenshot
-                            <input type="file" accept="image/*" class="hidden" onchange="app.handleScreenshotUpload(event)">
-                        </label>
-                    </div>
-                `;
-            }
-
-            renderMyOrders() {
-                return `
-                    <div class="flex items-start space-x-2 animate-fade-in">
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-2 border border-[#232e3c]">
-                            <div class="font-bold text-base text-cyan-400 border-b border-[#232e3c] pb-2">
-                                📦 MY ORDERS
-                            </div>
-                            <p class="text-xs text-[#8593a7]">Fetching your orders from Firebase Realtime Database...</p>
-                        </div>
-                    </div>
-                    <div id="orders-list-container" class="flex flex-col space-y-3 mt-2 pl-10">
-                        <div class="flex justify-center p-6 text-[#8593a7] text-xs">
-                            <i class="fa-solid fa-spinner fa-spin text-lg"></i>
-                        </div>
-                    </div>
-                `;
-            }
-
-            /* 
-               ACTION HANDLERS & FIREBASE INTEGRATIONS
-            */
-
-            selectProduct(productName, detailScreen) {
-                this.selectedProduct = productName;
-                this.navigateTo(detailScreen);
-            }
-
-            proceedToPayment(productDesc, price) {
-                this.selectedProduct = productDesc;
-                this.selectedPrice = price;
-                this.navigateTo('payment_screen');
-            }
-
-            initPaymentQR() {
-                // Try loading QR from Firebase Settings if configured
-                try {
-                    db.ref('settings/qr_code_url').once('value')
-                        .then((snapshot) => {
-                            const qrUrl = snapshot.val();
-                            if (qrUrl) {
-                                const imgElem = document.getElementById('dynamic-qr-img');
-                                const downloadLink = document.getElementById('download-qr-link');
-                                if (imgElem) imgElem.src = qrUrl;
-                                if (downloadLink) {
-                                    downloadLink.href = qrUrl;
-                                    downloadLink.setAttribute('target', '_blank');
-                                }
-                            }
-                        })
-                        .catch(() => {
-                            // Fallback gracefully to local qr_code.png
-                        });
-                } catch (e) {
-                    console.log("Using local QR fallback.");
+        function startQrCountdown() {
+            if (qrTimerInterval) clearInterval(qrTimerInterval);
+            qrTimerInterval = setInterval(() => {
+                qrSecondsRemaining--;
+                const mins = Math.floor(qrSecondsRemaining / 60).toString().padStart(2, '0');
+                const secs = (qrSecondsRemaining % 60).toString().padStart(2, '0');
+                const timerEl = document.getElementById('qr-timer-display');
+                if (timerEl) {
+                    timerEl.innerText = `${mins}:${secs}`;
                 }
+
+                if (qrSecondsRemaining <= 0) {
+                    clearInterval(qrTimerInterval);
+                    qrTimerInterval = null;
+                    handleQrExpiration();
+                }
+            }, 1000);
+        }
+
+        function handleQrExpiration() {
+            playTgSound('click');
+            const wrapper = document.getElementById('payment-session-wrapper');
+            if (wrapper) {
+                wrapper.innerHTML = `
+                    <div class="glass-card p-6 rounded-xl border border-red-500/40 text-center space-y-3 bg-red-950/20">
+                        <div class="w-12 h-12 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-red-400">QR Code Expired</h3>
+                        <p class="text-xs text-gray-300">Payment session timed out. Please restart your order from the shop.</p>
+                        <button onclick="navigateTo('shop_products')" class="mt-2 py-2 px-4 rounded-xl bg-blue-600 text-white text-xs font-bold">Return to Shop</button>
+                    </div>
+                `;
             }
+        }
 
-            initCountdownTimer() {
-                let timeLeft = 300; // 5 minutes in seconds
-                const timerElem = document.getElementById('countdown-timer');
-                if (!timerElem) return;
-
-                const interval = setInterval(() => {
-                    let minutes = Math.floor(timeLeft / 60);
-                    let seconds = timeLeft % 60;
-                    timerElem.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                    timeLeft--;
-                    if (timeLeft < 0) {
-                        clearInterval(interval);
-                        timerElem.textContent = "Expired";
+        function fetchFirebaseQrSetting() {
+            db.ref('settings/qr_code_url').once('value')
+                .then(snapshot => {
+                    const url = snapshot.val();
+                    if (url) {
+                        const imgEl = document.getElementById('dynamic-qr-img');
+                        const dlEl = document.getElementById('download-qr-btn');
+                        if (imgEl) imgEl.src = url;
+                        if (dlEl) dlEl.href = url;
                     }
-                }, 1000);
+                })
+                .catch(err => console.log('Using default local QR asset:', err));
+        }
+
+        // --- 9. SCREENSHOT UPLOAD & ORDER CREATION FLOW ---
+        function handleScreenshotUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Stop timer
+            if (qrTimerInterval) {
+                clearInterval(qrTimerInterval);
+                qrTimerInterval = null;
             }
 
-            handleScreenshotUpload(event) {
-                const file = event.target.files[0];
-                if (!file) return;
+            playTgSound('success');
+            showGlobalLoader("Uploading Screenshot...");
 
-                const viewport = document.getElementById('chat-viewport');
+            // 1. Immediately remove payment screen / show preview inside Telegram bubble
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const previewUrl = e.target.result;
+                clearChatDOMCompletely();
+                appendUserMessage(`📸 Payment Screenshot Uploaded`);
                 
-                // Show loading indicator in chat
-                const loadingBubble = document.createElement('div');
-                loadingBubble.className = 'flex items-start justify-end space-x-2 animate-fade-in pr-2';
-                loadingBubble.innerHTML = `
-                    <div class="telegram-bubble-out p-3 text-xs text-white max-w-[85%] border border-[#2481cc]/30 flex items-center gap-2">
-                        <i class="fa-solid fa-spinner fa-spin"></i> Uploading payment screenshot & creating order...
+                const uploadingMsgHtml = `
+                    <div class="space-y-2 text-center py-2" id="upload-progress-box">
+                        <div class="w-8 h-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin mx-auto"></div>
+                        <div class="text-xs text-blue-300 font-medium">Uploading to Firebase Storage & Creating Order...</div>
+                        <div class="w-24 h-24 mx-auto rounded-lg overflow-hidden border border-blue-400/30 shadow-md">
+                            <img src="${previewUrl}" class="w-full h-full object-cover">
+                        </div>
                     </div>
                 `;
-                viewport.appendChild(loadingBubble);
-                viewport.scrollTop = viewport.scrollHeight;
+                appendBotMessage(uploadingMsgHtml);
 
-                const uid = this.currentUser ? this.currentUser.uid : 'anonymous_user';
-                const orderId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
-                const timestamp = Date.now();
-                const storageRef = storage.ref().child(`payment_screenshots/${uid}/${orderId}_${file.name}`);
-
+                // 2. Upload to Firebase Storage
+                const storageRef = storage.ref(`payment_proofs/${currentUserUID}_${Date.now()}_${file.name}`);
                 storageRef.put(file)
-                    .then((snapshot) => snapshot.ref.getDownloadURL())
-                    .then((downloadURL) => {
+                    .then(snapshot => snapshot.ref.getDownloadURL())
+                    .then(downloadURL => {
+                        // 3. Create Firebase Realtime Database Order
+                        const orderId = 'ORD_' + Math.floor(100000 + Math.random() * 900000);
                         const orderData = {
                             orderId: orderId,
-                            customerUID: uid,
-                            customerName: this.currentUser && this.currentUser.displayName ? this.currentUser.displayName : 'Telegram User',
-                            gameUID: 'N/A',
-                            product: this.selectedProduct,
-                            duration: this.selectedProduct,
-                            price: this.selectedPrice,
-                            screenshotURL: downloadURL,
+                            customerUid: currentUserUID,
+                            customerName: currentUserName,
+                            product: selectedProductData.name,
+                            duration: selectedDurationData.name,
+                            price: selectedDurationData.price,
+                            screenshotUrl: downloadURL,
                             status: 'Pending',
-                            createdDate: new Date().toLocaleDateString(),
-                            timestamp: timestamp,
-                            paymentProof: downloadURL
+                            rejectReason: '',
+                            licenseKey: 'Pending Approval',
+                            timestamp: firebase.database.ServerValue.TIMESTAMP,
+                            date: new Date().toLocaleDateString(),
+                            time: new Date().toLocaleTimeString()
                         };
 
-                        return db.ref(`orders/${uid}/${orderId}`).set(orderData);
+                        return db.ref(`orders/${orderId}`).set(orderData);
                     })
                     .then(() => {
-                        this.navigateTo('my_orders');
+                        hideGlobalLoader();
+                        playTgSound('success');
+                        clearChatDOMCompletely();
+                        
+                        const successHtml = `
+                            <div class="space-y-3 text-center py-3">
+                                <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-lg shadow-emerald-500/20 border border-emerald-500/40">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <h3 class="font-bold text-sm text-white">Order Submitted Successfully!</h3>
+                                <p class="text-xs text-gray-300">Your payment proof has been saved to Firebase. The owner will approve your order and generate your VIP license key shortly.</p>
+                                <button onclick="playTgSound('click'); navigateTo('my_orders', '📦 View My Orders');"
+                                    class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold text-xs shadow-lg shadow-blue-500/30 flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-box-archive"></i>
+                                    <span>Go To My Orders</span>
+                                </button>
+                            </div>
+                        `;
+                        appendBotMessage(successHtml);
                     })
-                    .catch((error) => {
-                        alert("Error uploading screenshot: " + error.message);
-                        this.navigateTo('main_menu');
+                    .catch(error => {
+                        hideGlobalLoader();
+                        console.error("Upload/Order Error:", error);
+                        alert("Error saving order: " + error.message);
+                        navigateTo('shop_products');
                     });
-            }
+            };
+            reader.readAsDataURL(file);
+        }
 
-            fetchAndRenderOrders() {
-                const container = document.getElementById('orders-list-container');
-                if (!container) return;
+        // --- 10. MY ORDERS RENDERER & REALTIME LISTENER ---
+        function renderMyOrdersScreen() {
+            clearChatDOMCompletely();
+            showGlobalLoader("Loading Orders...");
 
-                const uid = this.currentUser ? this.currentUser.uid : 'anonymous_user';
-                
-                db.ref(`orders/${uid}`).once('value')
-                    .then((snapshot) => {
-                        container.innerHTML = '';
-                        const orders = snapshot.val();
+            // Query orders matching current user UID
+            const ordersRef = db.ref('orders').orderByChild('customerUid').equalTo(currentUserUID);
+            ordersRef.once('value')
+                .then(snapshot => {
+                    hideGlobalLoader();
+                    const ordersData = snapshot.val();
 
-                        if (!orders) {
-                            container.innerHTML = `
-                                <div class="telegram-bubble-in p-4 text-center text-sm text-[#8593a7] border border-[#232e3c]">
-                                    <i class="fa-solid fa-box-open text-2xl mb-2 text-cyan-400"></i>
-                                    <p>No Orders Found</p>
+                    if (!ordersData) {
+                        const noOrdersHtml = `
+                            <div class="text-center space-y-3 py-6">
+                                <div class="w-14 h-14 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-blue-500/20">
+                                    <i class="fa-solid fa-box-open"></i>
+                                </div>
+                                <h3 class="font-bold text-sm text-white">No Orders Found</h3>
+                                <p class="text-xs text-gray-400">You haven't placed any orders yet. Browse our store products to get started.</p>
+                                <button onclick="navigateTo('shop_products')" class="py-2.5 px-5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-md">Browse Shop</button>
+                            </div>
+                        `;
+                        appendBotMessage(noOrdersHtml);
+                        return;
+                    }
+
+                    let ordersListHtml = `<div class="space-y-3"><p class="text-xs font-semibold text-blue-300">📦 Your Order History:</p><div class="space-y-3">`;
+
+                    // Sort orders by timestamp descending
+                    const ordersArray = Object.values(ordersData).reverse();
+
+                    ordersArray.forEach(ord => {
+                        let statusBadge = '';
+                        let actionBox = '';
+
+                        if (ord.status === 'Approved') {
+                            statusBadge = `<span class="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-emerald-500/30 flex items-center space-x-1"><i class="fa-solid fa-check"></i><span>Approved</span></span>`;
+                            actionBox = `
+                                <div class="bg-black/30 p-2.5 rounded-xl border border-emerald-500/30 space-y-2 mt-2">
+                                    <div class="text-[11px] text-gray-300 font-medium">🔑 VIP License Key:</div>
+                                    <div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg border border-white/10 font-mono text-xs text-emerald-300">
+                                        <span id="key-${ord.orderId}" class="truncate mr-2">${ord.licenseKey || 'BISWA-VIP-XXXX-YYYY'}</span>
+                                        <button onclick="copyToClipboard('key-${ord.orderId}')" class="bg-blue-600 hover:bg-blue-500 text-white px-2.5 py-1 rounded text-[10px] flex-shrink-0 font-sans"><i class="fa-solid fa-copy"></i> Copy</button>
+                                    </div>
+                                    <a href="${ord.apkDownloadUrl || '#'}" target="_blank" onclick="playTgSound('success')" class="block text-center py-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-500 text-white text-xs font-bold shadow-sm">
+                                        <i class="fa-solid fa-download"></i> Download Mod APK / Script
+                                    </a>
                                 </div>
                             `;
-                            return;
+                        } else if (ord.status === 'Rejected') {
+                            statusBadge = `<span class="bg-red-500/20 text-red-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-red-500/30 flex items-center space-x-1"><i class="fa-solid fa-xmark"></i><span>Rejected</span></span>`;
+                            actionBox = `
+                                <div class="bg-red-950/20 p-2.5 rounded-xl border border-red-500/30 text-[11px] text-red-300 mt-2">
+                                    <strong>Reject Reason:</strong> ${ord.rejectReason || 'Invalid payment proof screenshot.'}
+                                </div>
+                            `;
+                        } else {
+                            statusBadge = `<span class="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-bold border border-amber-500/30 flex items-center space-x-1 animate-pulse"><i class="fa-solid fa-clock"></i><span>Pending Verification</span></span>`;
+                            actionBox = `
+                                <div class="bg-amber-950/20 p-2 rounded-lg border border-amber-500/20 text-[11px] text-amber-300/80 mt-2 text-center">
+                                    ⏳ Owner is verifying payment screenshot. Key will appear here soon.
+                                </div>
+                            `;
                         }
 
-                        Object.values(orders).reverse().forEach((order) => {
-                            let statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30">Pending Badge</span>`;
-                            let extraDetails = '';
-
-                            if (order.status === 'Approved' || order.status === 'Completed') {
-                                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Approved</span>`;
-                                extraDetails = `
-                                    <div class="mt-2 pt-2 border-t border-[#232e3c] space-y-1">
-                                        <p class="text-xs text-cyan-300 font-mono">License Key: <strong class="text-white">${order.licenseKey || 'BISWA-KEY-XXXX-YYYY'}</strong></p>
-                                        <a href="${order.apkDownloadURL || '#'}" target="_blank" class="mt-1 block text-center py-1.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-xs font-medium transition-all">
-                                            <i class="fa-solid fa-download"></i> APK Download Button
-                                        </a>
-                                    </div>
-                                `;
-                            } else if (order.status === 'Rejected') {
-                                statusBadge = `<span class="px-2 py-0.5 rounded text-[10px] bg-red-500/20 text-red-400 border border-red-500/30">Rejected</span>`;
-                                extraDetails = `<p class="text-xs text-red-400 mt-1">Reject Reason: ${order.rejectReason || 'Invalid payment screenshot or incorrect amount.'}</p>`;
-                            }
-
-                            const orderCard = document.createElement('div');
-                            orderCard.className = 'telegram-bubble-in p-4 text-sm text-[#f5f5f5] border border-[#232e3c] space-y-2';
-                            orderCard.innerHTML = `
-                                <div class="flex items-center justify-between border-b border-[#232e3c] pb-2">
-                                    <span class="font-bold text-cyan-300 text-xs font-mono">${order.orderId}</span>
+                        ordersListHtml += `
+                            <div class="glass-card p-3.5 rounded-xl border border-blue-500/30 space-y-2">
+                                <div class="flex items-center justify-between border-b border-white/10 pb-2">
+                                    <span class="font-bold text-xs text-white">${ord.product}</span>
                                     ${statusBadge}
                                 </div>
-                                <div class="space-y-1 text-xs text-slate-300">
-                                    <p><strong class="text-white">${order.product}</strong></p>
-                                    <p class="text-emerald-400 font-semibold">Price: ₹${order.price}</p>
-                                    <p class="text-[#8593a7]">Order Date: ${order.createdDate}</p>
+                                <div class="grid grid-cols-2 gap-1 text-[11px] text-gray-300">
+                                    <div>Duration: <span class="text-blue-300 font-medium">${ord.duration}</span></div>
+                                    <div>Price: <span class="text-emerald-400 font-medium">${ord.price}</span></div>
+                                    <div>Order ID: <span class="font-mono text-gray-400">${ord.orderId}</span></div>
+                                    <div>Date: <span class="text-gray-400">${ord.date}</span></div>
                                 </div>
-                                ${extraDetails}
-                            `;
-                            container.appendChild(orderCard);
-                        });
-                    })
-                    .catch((error) => {
-                        container.innerHTML = `<div class="text-xs text-red-400 p-2">Error loading orders: ${error.message}</div>`;
+                                ${actionBox}
+                            </div>
+                        `;
                     });
-            }
 
-            shareStore() {
-                const currentUrl = window.location.href;
-                navigator.clipboard.writeText(currentUrl).then(() => {
-                    const viewport = document.getElementById('chat-viewport');
-                    const toast = document.createElement('div');
-                    toast.className = 'flex items-start space-x-2 animate-fade-in';
-                    toast.innerHTML = `
-                        <div class="w-8 h-8 rounded-full bg-[#2481cc] flex items-center justify-center text-white shrink-0 shadow">
-                            <i class="fa-solid fa-robot text-xs"></i>
-                        </div>
-                        <div class="telegram-bubble-in p-4 text-sm text-[#f5f5f5] max-w-[85%] space-y-2 border border-[#232e3c]">
-                            <p class="font-bold text-emerald-400">✅ Link Copied</p>
-                            <p class="text-xs">Apne Friends ke saath ye Store Link share kare.</p>
-                            <p class="text-xs text-[#8593a7]">Jab bhi koi customer aapke referral link se product purchase karega, aapko har successful order par discount milega.</p>
-                        </div>
-                    `;
-                    viewport.appendChild(toast);
-                    viewport.scrollTop = viewport.scrollHeight;
+                    ordersListHtml += `</div></div>`;
+                    appendBotMessage(ordersListHtml);
+                })
+                .catch(err => {
+                    hideGlobalLoader();
+                    console.error("Fetch orders error:", err);
+                    appendBotMessage(`<div class="text-red-400 text-xs">Failed to load orders from Firebase. Please check connection.</div>`);
+                });
+        }
+
+        function copyToClipboard(elementId) {
+            playTgSound('success');
+            const el = document.getElementById(elementId);
+            if (el) {
+                const text = el.innerText;
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("License Key Copied to Clipboard!");
+                }).catch(err => {
+                    console.error("Copy error:", err);
                 });
             }
         }
 
-        // Initialize Application instance on window load
-        let app;
+        // --- 11. CONTACT OWNER SCREEN ---
+        function renderContactOwnerScreen() {
+            const ownerWhatsApp = "919876543210"; // Configurable WhatsApp
+            const html = `
+                <div class="space-y-3 text-center">
+                    <div class="glass-card p-5 rounded-xl border border-blue-500/40 space-y-3">
+                        <div class="w-14 h-14 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl shadow-lg border border-emerald-500/30">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">BISWA MODS OWNER</h3>
+                        <p class="text-xs text-gray-300">Need instant assistance or custom mod development? Chat directly with the store owner on WhatsApp.</p>
+                        <a href="https://wa.me/${ownerWhatsApp}?text=Hi%20Biswa%20Mod%20Owner,%20I%20need%20help%20with%20an%20order." target="_blank" onclick="playTgSound('success')"
+                           class="ripple w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 text-white font-semibold text-xs shadow-lg shadow-emerald-500/30 flex items-center justify-center space-x-2">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                            <span>Open WhatsApp Chat</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+            appendBotMessage(html);
+        }
+
+        // --- 12. SHARE STORE SCREEN ---
+        function renderShareStoreScreen() {
+            const currentUrl = window.location.href;
+            
+            // Trigger native share if supported
+            if (navigator.share) {
+                navigator.share({
+                    title: 'BISWA MODS PRO',
+                    text: 'Get VIP Gaming Mods & Instant Automated License Keys!',
+                    url: currentUrl,
+                }).catch(err => console.log('Share canceled or error:', err));
+            }
+
+            const html = `
+                <div class="space-y-3 text-center">
+                    <div class="glass-card p-5 rounded-xl border border-blue-500/40 space-y-3">
+                        <div class="w-14 h-14 bg-purple-500/20 text-purple-400 rounded-full flex items-center justify-center mx-auto text-2xl shadow-lg border border-purple-500/30">
+                            <i class="fa-solid fa-share-nodes"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">Share BISWA MODS PRO</h3>
+                        <p class="text-xs text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check"></i> Link Copied Successfully to Clipboard!</p>
+                        <div class="bg-black/30 p-2.5 rounded-lg border border-white/10 font-mono text-[11px] text-gray-300 truncate">
+                            ${currentUrl}
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <button onclick="playTgSound('success'); navigator.clipboard.writeText('${currentUrl}'); alert('Link Copied Again!');"
+                                class="ripple py-2.5 px-3 rounded-xl bg-blue-600 text-white font-bold text-xs">
+                                <i class="fa-solid fa-copy"></i> Copy Link
+                            </button>
+                            <button onclick="navigateTo('main_menu')"
+                                class="ripple py-2.5 px-3 rounded-xl bg-slate-800 text-white font-bold text-xs border border-white/10">
+                                <i class="fa-solid fa-house"></i> Main Menu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            appendBotMessage(html);
+        }
+
+        // --- 13. CLEAR CHAT FUNCTIONALITY ---
+        function triggerClearChat() {
+            playTgSound('click');
+            if (confirm("Are you sure you want to clear chat and reset session variables?")) {
+                // Clear state variables
+                selectedProductData = null;
+                selectedDurationData = null;
+                if (qrTimerInterval) {
+                    clearInterval(qrTimerInterval);
+                    qrTimerInterval = null;
+                }
+
+                clearChatDOMCompletely();
+                showGlobalLoader("Clearing Chat...");
+                setTimeout(() => {
+                    hideGlobalLoader();
+                    playTgSound('success');
+                    appendBotMessage(`<div class="text-center py-2 text-xs text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check"></i> Chat Cleared Successfully. Returning to Main Menu...</div>`);
+                    setTimeout(() => {
+                        navigateTo('main_menu', null, false);
+                    }, 800);
+                }, 400);
+            }
+        }
+
+        // --- 14. GLOBAL LOADER HELPERS ---
+        function showGlobalLoader(text = "Processing...") {
+            const loader = document.getElementById('global-loader');
+            const textEl = document.getElementById('loader-text');
+            if (textEl) textEl.innerText = text;
+            if (loader) loader.classList.remove('hidden');
+        }
+
+        function hideGlobalLoader() {
+            const loader = document.getElementById('global-loader');
+            if (loader) loader.classList.add('hidden');
+        }
+
+        // --- 15. RIPPLE ANIMATION HELPER ---
+        function addRipple(event) {
+            const btn = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+            const radius = diameter / 2;
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - btn.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${event.clientY - btn.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple-effect');
+
+            const ripple = btn.getElementsByClassName('ripple-effect')[0];
+            if (ripple) {
+                ripple.remove();
+            }
+
+            btn.appendChild(circle);
+        }
+
+        // --- 16. INITIAL APP BOOTSTRAP ---
         window.addEventListener('DOMContentLoaded', () => {
-            app = new TelegramStoreApp();
+            initializeFirebaseSession();
+            // Start directly on Welcome Screen as specified
+            navigateTo('welcome', null, false);
         });
     </script>
 </body>
